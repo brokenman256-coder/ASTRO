@@ -41,6 +41,16 @@ npm run dev   # http://localhost:3000
 
 ## Feature guide
 
+### Chat with AstroBot
+A real multi-turn conversation, not a one-shot form - users type freely and
+AstroBot replies in a warm, natural, conversational tone, remembering
+earlier messages in the thread (last 20 messages are sent back to Claude as
+conversation history on each turn). Distinct from the one-shot Predictions/
+Remedies/Palm Reading tools and from the admin Bot Command Center's
+app-wide broadcasts - this is a private, ongoing, per-user conversation.
+Requires login (chat history is tied to the account). Backend: `ChatMessage`
+model, `/api/chat/history` and `/api/chat/message`.
+
 ### Astrologer roster bot
 Admin dashboard → **Astrologers**. "Bot: Add new astrologer" generates a
 fresh profile (name, specialty, experience, photo, bio); "Bot: Retire

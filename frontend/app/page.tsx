@@ -39,8 +39,8 @@ export default function HomePage() {
           {branding?.aboutText}
         </p>
         <div className="flex justify-center gap-4 pt-4">
-          <Link href="/predictions" className="btn-primary">Get a Prediction</Link>
-          <Link href="/palm-reading" className="btn-secondary">Try Palm Reading</Link>
+          <Link href="/chat" className="btn-primary">Chat with AstroBot</Link>
+          <Link href="/predictions" className="btn-secondary">Get a Prediction</Link>
         </div>
       </section>
 
@@ -58,6 +58,11 @@ export default function HomePage() {
       )}
 
       <section className="grid md:grid-cols-3 gap-6">
+        <FeatureCard
+          title="Chat with AstroBot"
+          desc="A real conversation - AstroBot remembers what you've told it and chats naturally."
+          href="/chat"
+        />
         <FeatureCard
           title="Expert Astrologers"
           desc="Browse a curated, always-fresh roster of astrologers across specialties."

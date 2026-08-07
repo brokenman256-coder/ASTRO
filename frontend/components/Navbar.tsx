@@ -19,6 +19,7 @@ export default function Navbar() {
         </Link>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/astrologers" className="hover:text-brand-light">Astrologers</Link>
+          <Link href="/chat" className="hover:text-brand-light">Chat</Link>
           <Link href="/predictions" className="hover:text-brand-light">Predictions</Link>
           <Link href="/palm-reading" className="hover:text-brand-light">Palm Reading</Link>
           <Link href="/remedies" className="hover:text-brand-light">Remedies</Link>

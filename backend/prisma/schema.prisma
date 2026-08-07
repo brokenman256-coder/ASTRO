@@ -18,6 +18,7 @@ model User {
   predictions    Prediction[]
   palmReadings   PalmReading[]
   remedies       Remedy[]
+  chatMessages   ChatMessage[]
   transactions   WalletTransaction[]
 }
 
@@ -120,6 +121,20 @@ model Remedy {
   concern     String
   resultText  String
   createdAt   DateTime  @default(now())
+}
+
+enum ChatRole {
+  USER
+  BOT
+}
+
+model ChatMessage {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  role      ChatRole
+  content   String
+  createdAt DateTime  @default(now())
 }
 
 enum BotMode {

@@ -32,6 +32,30 @@ export async function generateText(params: {
   return { text: block && block.type === "text" ? block.text : "", configured: true };
 }
 
+export interface ConversationTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export async function generateConversation(params: {
+  system: string;
+  turns: ConversationTurn[];
+  maxTokens?: number;
+}): Promise<{ text: string; configured: boolean }> {
+  const anthropic = getClient();
+  if (!anthropic) {
+    return { text: AI_NOT_CONFIGURED_MESSAGE, configured: false };
+  }
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: params.maxTokens ?? 500,
+    system: params.system,
+    messages: params.turns.map((t) => ({ role: t.role, content: t.content })),
+  });
+  const block = response.content.find((c) => c.type === "text");
+  return { text: block && block.type === "text" ? block.text : "", configured: true };
+}
+
 export async function generateFromImage(params: {
   system: string;
   prompt: string;
