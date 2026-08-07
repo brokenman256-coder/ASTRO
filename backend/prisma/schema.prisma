@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String             @id @default(uuid())
+  name           String
+  email          String             @unique
+  passwordHash   String
+  walletBalance  Int                @default(0) // stored in paise (1/100 currency unit)
+  createdAt      DateTime           @default(now())
+  predictions    Prediction[]
+  palmReadings   PalmReading[]
+  transactions   WalletTransaction[]
+}
+
+model Admin {
+  id            String    @id @default(uuid())
+  username      String    @unique
+  passwordHash  String
+  createdAt     DateTime  @default(now())
+  broadcasts    BroadcastMessage[]
+  reviewedTx    WalletTransaction[]
+}
+
+enum AstrologerSource {
+  MANUAL
+  BOT
+}
+
+model Astrologer {
+  id               String            @id @default(uuid())
+  name             String
+  specialty        String
+  experienceYears  Int
+  rating           Float             @default(4.5)
+  bio              String
+  photoUrl         String
+  active           Boolean           @default(true)
+  source           AstrologerSource  @default(MANUAL)
+  createdAt        DateTime          @default(now())
+  retiredAt        DateTime?
+}
+
+enum TxType {
+  TOPUP_REQUEST
+  DEBIT
+}
+
+enum TxStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model WalletTransaction {
+  id               String     @id @default(uuid())
+  userId           String
+  user             User       @relation(fields: [userId], references: [id])
+  amount           Int // paise
+  type             TxType     @default(TOPUP_REQUEST)
+  status           TxStatus   @default(PENDING)
+  referenceCode    String     @unique
+  qrPayload        String
+  createdAt        DateTime   @default(now())
+  reviewedByAdminId String?
+  reviewedByAdmin  Admin?     @relation(fields: [reviewedByAdminId], references: [id])
+  reviewedAt       DateTime?
+}
+
+enum PredictionCategory {
+  DAILY
+  LOVE
+  CAREER
+  HEALTH
+  GENERAL
+}
+
+model Prediction {
+  id           String              @id @default(uuid())
+  userId       String?
+  user         User?               @relation(fields: [userId], references: [id])
+  category     PredictionCategory
+  zodiacSign   String
+  inputDetails Json
+  resultText   String
+  createdAt    DateTime            @default(now())
+}
+
+model PalmReading {
+  id          String    @id @default(uuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  imageData   String    // base64 data URI of uploaded palm image
+  resultText  String
+  createdAt   DateTime  @default(now())
+}
+
+enum BotMode {
+  MANUAL
+  AUTONOMOUS
+}
+
+model BroadcastMessage {
+  id              String    @id @default(uuid())
+  rawAdminInput   String
+  formalizedText  String
+  mode            BotMode   @default(MANUAL)
+  createdByAdminId String
+  createdByAdmin  Admin     @relation(fields: [createdByAdminId], references: [id])
+  createdAt       DateTime  @default(now())
+}
+
+model BotSettings {
+  id        Int      @id @default(1)
+  mode      BotMode  @default(AUTONOMOUS)
+  updatedAt DateTime @updatedAt
+}
+
+model BrandingSettings {
+  id            Int      @id @default(1)
+  appName       String   @default("Astro")
+  tagline       String   @default("Your stars, decoded.")
+  aboutText     String   @default("Astro brings you AI-guided astrology, palm reading, and expert astrologers in one place.")
+  primaryColor  String   @default("#6D28D9")
+  secondaryColor String  @default("#F59E0B")
+  logoUrl       String   @default("")
+  updatedAt     DateTime @updatedAt
+}

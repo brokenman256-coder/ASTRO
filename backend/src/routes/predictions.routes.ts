@@ -1,0 +1,44 @@
+import { Router } from "express";
+import { z } from "zod";
+import { prisma } from "../lib/prisma";
+import { optionalUser, AuthedRequest } from "../middleware/auth";
+import { generatePrediction } from "../services/prediction.service";
+
+export const predictionsRouter = Router();
+
+const requestSchema = z.object({
+  category: z.enum(["DAILY", "LOVE", "CAREER", "HEALTH", "GENERAL"]),
+  zodiacSign: z.string().min(1),
+  name: z.string().optional(),
+  dob: z.string().optional(),
+  question: z.string().max(500).optional(),
+});
+
+predictionsRouter.post("/", optionalUser, async (req: AuthedRequest, res) => {
+  const parsed = requestSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+
+  const { text, configured } = await generatePrediction(parsed.data);
+
+  const prediction = await prisma.prediction.create({
+    data: {
+      userId: req.user?.sub,
+      category: parsed.data.category,
+      zodiacSign: parsed.data.zodiacSign,
+      inputDetails: parsed.data,
+      resultText: text,
+    },
+  });
+
+  res.status(201).json({ prediction, aiConfigured: configured });
+});
+
+predictionsRouter.get("/mine", optionalUser, async (req: AuthedRequest, res) => {
+  if (!req.user) return res.status(401).json({ error: "Login required" });
+  const predictions = await prisma.prediction.findMany({
+    where: { userId: req.user.sub },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+  res.json({ predictions });
+});

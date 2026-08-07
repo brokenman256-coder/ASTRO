@@ -1,0 +1,113 @@
+import { Router } from "express";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import rateLimit from "express-rate-limit";
+import { z } from "zod";
+import { prisma } from "../lib/prisma";
+import { env } from "../lib/env";
+import { hashPassword, verifyPassword, signUserToken, signAdminToken } from "../lib/auth";
+
+export const authRouter = Router();
+
+// ---------- User auth ----------
+
+const signupSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  password: z.string().min(6).max(200),
+});
+
+authRouter.post("/signup", async (req, res) => {
+  const parsed = signupSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+  const { name, email, password } = parsed.data;
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) return res.status(409).json({ error: "An account with this email already exists" });
+
+  const passwordHash = await hashPassword(password);
+  const user = await prisma.user.create({ data: { name, email, passwordHash } });
+  const token = signUserToken({ sub: user.id, email: user.email, role: "user" });
+  res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
+});
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+authRouter.post("/login", async (req, res) => {
+  const parsed = loginSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+  const { email, password } = parsed.data;
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.status(401).json({ error: "Invalid email or password" });
+  const ok = await verifyPassword(password, user.passwordHash);
+  if (!ok) return res.status(401).json({ error: "Invalid email or password" });
+
+  const token = signUserToken({ sub: user.id, email: user.email, role: "user" });
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+});
+
+// ---------- Secret admin passage ----------
+// Step 1: caller must know the out-of-band ADMIN_ACCESS_PHRASE (never sent to
+// the client bundle, only checked server-side). Correct phrase issues a very
+// short-lived "gateway" token.
+// Step 2: the gateway token + real admin username/password log the admin in.
+// This means finding the hidden UI route alone is not enough to reach the
+// admin login form, and knowing the login form alone is not enough either.
+
+const gatewayLimiter = rateLimit({ windowMs: 10 * 60 * 1000, limit: 8 });
+const adminLoginLimiter = rateLimit({ windowMs: 10 * 60 * 1000, limit: 8 });
+
+function timingSafeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+const gatewaySchema = z.object({ passphrase: z.string().min(1) });
+
+authRouter.post("/admin/gateway", gatewayLimiter, (req, res) => {
+  const parsed = gatewaySchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Passphrase required" });
+  if (!env.adminAccessPhrase) {
+    return res.status(503).json({ error: "Admin passage is not configured on this server" });
+  }
+  if (!timingSafeEqual(parsed.data.passphrase, env.adminAccessPhrase)) {
+    return res.status(401).json({ error: "Access denied" });
+  }
+  const gatewayToken = jwt.sign({ purpose: "admin-gateway" }, env.jwtAdminSecret, {
+    expiresIn: "5m",
+  });
+  res.json({ gatewayToken });
+});
+
+const adminLoginSchema = z.object({
+  gatewayToken: z.string().min(1),
+  username: z.string().min(1),
+  password: z.string().min(1),
+});
+
+authRouter.post("/admin/login", adminLoginLimiter, async (req, res) => {
+  const parsed = adminLoginSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Missing fields" });
+  const { gatewayToken, username, password } = parsed.data;
+
+  try {
+    const decoded = jwt.verify(gatewayToken, env.jwtAdminSecret) as { purpose?: string };
+    if (decoded.purpose !== "admin-gateway") throw new Error("bad token");
+  } catch {
+    return res.status(401).json({ error: "Gateway session expired, re-enter the passphrase" });
+  }
+
+  const admin = await prisma.admin.findUnique({ where: { username } });
+  if (!admin) return res.status(401).json({ error: "Invalid admin credentials" });
+  const ok = await verifyPassword(password, admin.passwordHash);
+  if (!ok) return res.status(401).json({ error: "Invalid admin credentials" });
+
+  const token = signAdminToken({ sub: admin.id, username: admin.username, role: "admin" });
+  res.json({ token, admin: { id: admin.id, username: admin.username } });
+});
