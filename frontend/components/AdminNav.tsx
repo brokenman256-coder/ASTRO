@@ -6,6 +6,7 @@ import { clearAdminToken } from "@/lib/session";
 
 const LINKS = [
   { href: "/admin", label: "Overview" },
+  { href: "/admin/users", label: "Users" },
   { href: "/admin/astrologers", label: "Astrologers" },
   { href: "/admin/guided-predictions", label: "Guided Predictions" },
   { href: "/admin/wallet-approvals", label: "Wallet Approvals" },
@@ -19,18 +20,21 @@ export default function AdminNav() {
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-white/10 pb-4">
-      {LINKS.map((l) => (
-        <Link
-          key={l.href}
-          href={l.href}
-          className={
-            "text-sm px-3 py-1.5 rounded-lg " +
-            (pathname === l.href ? "bg-brand text-white" : "text-slate-400 hover:bg-white/10")
-          }
-        >
-          {l.label}
-        </Link>
-      ))}
+      {LINKS.map((l) => {
+        const active = l.href === "/admin" ? pathname === l.href : pathname.startsWith(l.href);
+        return (
+          <Link
+            key={l.href}
+            href={l.href}
+            className={
+              "text-sm px-3 py-1.5 rounded-lg " +
+              (active ? "bg-brand text-white" : "text-slate-400 hover:bg-white/10")
+            }
+          >
+            {l.label}
+          </Link>
+        );
+      })}
       <button
         className="ml-auto text-sm text-slate-500 hover:text-red-400"
         onClick={() => {

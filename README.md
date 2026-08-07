@@ -85,6 +85,13 @@ There's also a dedicated **Remedies** page where a user can directly
 describe what's troubling them (e.g. lack of focus, anxiety, career
 blocks) and get a tailored remedy on demand.
 
+### User data & admin visibility
+Every prediction, palm reading (including the actual uploaded photo),
+remedy, and wallet transaction is stored against the user who generated it.
+Admin dashboard → **Users** lists every account; clicking one opens their
+full history - all predictions, palm reading images, remedies, and wallet
+transactions in one place. `passwordHash` is never returned, even to admins.
+
 ### Bot command center
 Admin dashboard → **Bot Command Center**. Type an instruction in plain
 language; AstroBot (Claude) rewrites it as a formal announcement, which you
