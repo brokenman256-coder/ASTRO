@@ -28,7 +28,7 @@ export default function AstrologersPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-semibold">Our Astrologers</h1>
-        <p className="text-slate-400 mt-1">A curated, continuously refreshed roster of experts.</p>
+        <p className="text-slate-400 mt-1">Today's featured experts - a fresh selection every day.</p>
       </div>
 
       {loading && <p className="text-slate-400">Loading...</p>}

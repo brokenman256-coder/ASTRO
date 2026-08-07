@@ -54,6 +54,7 @@ model AstrologerBotSettings {
   enabled               Boolean   @default(false)
   intervalMinutes       Int       @default(10)
   maxActiveAstrologers  Int       @default(30)
+  dailyDisplayCount     Int       @default(100)
   lastRunAt             DateTime?
   updatedAt             DateTime  @updatedAt
 }

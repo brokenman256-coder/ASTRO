@@ -59,11 +59,22 @@ see the cost note in `backend/.env.example` before turning this on, since a
 real money per image. It's off by default; turn it on from the dashboard
 once you're ready.
 
-The scheduler runs in-process, so it needs the backend server to stay
-running continuously - on Render's free tier the service sleeps after ~15
-minutes of no incoming traffic, which pauses it. A free uptime pinger (e.g.
-cron-job.org hitting `/api/health` every 10 minutes) keeps it alive, or use
-a Render plan that doesn't sleep.
+The scheduler runs in-process on Render; on Netlify Functions it instead
+relies on an external pinger hitting `/scheduler-tick` (see the Deployment
+section) since serverless functions can't run a timer between requests.
+
+**Bulk-generate**: for building a large pool up front rather than growing it
+one at a time, the same page has a "Bulk-generate astrologers" action -
+create up to 2000 profiles in one go, using placeholder avatars only (no
+per-image AI cost, unlike the live auto-bot). Combine this with **Featured
+per day** (same settings panel as the auto-bot, default 100): the public
+Astrologers page only ever shows that many at once, picked by a
+date-seeded shuffle of the active pool - the same subset all day for every
+visitor, a different subset the next day. So you can bulk-seed 1000 profiles
+and users will always see a fresh-looking 100 without the full pool being
+dumped on them at once. If you also run the live auto-bot afterward, raise
+"Max active roster size" above your bulk pool size first, or it'll retire
+bulk-created profiles down to whatever that cap is set to.
 
 ### AI predictions & palm reading
 Powered by Claude via `ANTHROPIC_API_KEY` in `backend/.env`. Without a key
