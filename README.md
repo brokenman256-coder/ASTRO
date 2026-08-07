@@ -134,25 +134,50 @@ See `backend/.env.example` and `frontend/.env.example` for the full list.
 
 ## Deployment
 
-No-card-required path (recommended if you don't want to link a payment method
-anywhere):
+Two backend deploy targets are supported from the same codebase - pick one.
 
-- **Database**: Neon (free tier, no card required). Create a project, copy
-  the pooled connection string.
-- **Backend**: Render (free tier, no card required for a free web service).
-  `render.yaml` at the repo root is a Render Blueprint - importing the repo
-  there auto-configures the build/start commands and prompts for env vars.
-  On the free plan the service spins down after inactivity, so the first
-  request after a quiet period is slow to wake up.
-- **Frontend**: Netlify. `netlify.toml` at the repo root points Netlify at
-  `frontend/` and uses the official Next.js runtime plugin. Set
-  `NEXT_PUBLIC_API_URL` in Netlify's env vars to the Render backend's public
+### Option A: everything on Netlify (two sites, no card anywhere)
+
+- **Database**: Neon (free, no card). Create a project, copy the pooled
+  connection string.
+- **Backend**: a *second* Netlify site pointing at this same repo, with
+  **Base directory** set to `backend`. It picks up `backend/netlify.toml`,
+  which runs migrations + seeding at build time and deploys the Express app
+  as a Netlify Function (`backend/netlify/functions/api.ts`, via
+  `serverless-http`) behind a `/api/*` redirect - so it's reachable at the
+  same `<site>.netlify.app/api/...` shape the frontend already expects.
+  Env vars: same list as Option B below, set in this site's settings.
+- **Astrologer auto-bot scheduler**: serverless functions have no persistent
+  process for an in-process timer, so instead point a free external
+  scheduler (e.g. cron-job.org, every 5-10 minutes) at
+  `https://<backend-site>.netlify.app/scheduler-tick?secret=<SCHEDULER_SECRET>`.
+  It's a no-op unless the bot's configured interval has actually elapsed, so
+  pinging it more often than the interval is harmless.
+- **Frontend**: the existing Netlify site from `netlify.toml` at the repo
+  root (base `frontend/`). Set `NEXT_PUBLIC_API_URL` to the backend site's
   URL + `/api`.
+- Caveat: file uploads (palm reading photos) go through Netlify's Lambda-style
+  event format rather than a raw Node stream - this is the one area that
+  hasn't been exercised against live Netlify infrastructure, so it's worth
+  testing first after deploy. If it errors, that's the place to debug.
 
-`backend/railway.json` is also included as an alternative if you later want
-to move the backend + database onto Railway instead (note: Railway requires
-a payment method on file even on its free trial).
+### Option B: Render (backend) + Neon (database) + Netlify (frontend)
 
-The backend's `start:prod` script runs migrations and the (idempotent) seed
-script automatically on every boot, so the initial admin account is created
-on first deploy with no manual step required.
+- **Database**: Neon, same as above.
+- **Backend**: Render (free tier, no card required for a free web service -
+  double check the Instance Type is set to Free). `render.yaml` at the repo
+  root is a Render Blueprint - importing the repo there auto-configures the
+  build/start commands and prompts for env vars. The astrologer auto-bot
+  runs in-process here (no external pinger needed), but the free plan spins
+  down after inactivity, which pauses it until the next request wakes it -
+  a free uptime pinger on `/api/health` keeps it running continuously.
+- **Frontend**: same as Option A.
+
+Both options use the same env vars: `DATABASE_URL`, `JWT_USER_SECRET`,
+`JWT_ADMIN_SECRET`, `ADMIN_ACCESS_PHRASE`, `SEED_ADMIN_USERNAME`,
+`SEED_ADMIN_PASSWORD`, `ANTHROPIC_API_KEY` (optional), `OPENAI_API_KEY`
+(optional). Option A also needs `SCHEDULER_SECRET`.
+
+`backend/railway.json` is also included as a third alternative if you want
+Railway instead (note: Railway requires a payment method on file even on
+its free trial).

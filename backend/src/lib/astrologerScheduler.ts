@@ -3,7 +3,7 @@ import { botAddAstrologer, botRetireOldestForCap } from "../services/astrologerB
 
 const TICK_MS = 60 * 1000;
 
-async function runIfDue() {
+export async function runIfDue() {
   const settings = await prisma.astrologerBotSettings.upsert({
     where: { id: 1 },
     update: {},
@@ -33,6 +33,13 @@ async function runIfDue() {
   }
 }
 
+/**
+ * For persistent-server deployments only (local dev, Render, etc). Not used
+ * by the Netlify Functions entry point - serverless functions have no
+ * process to keep a timer alive in, so that path relies on an external
+ * pinger hitting the scheduler-tick function instead (see netlify/functions
+ * /scheduler-tick.ts and the README).
+ */
 export function startAstrologerScheduler() {
   setInterval(() => {
     runIfDue().catch((err) => console.error("Astrologer scheduler tick failed:", err));

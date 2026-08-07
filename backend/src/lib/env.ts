@@ -18,6 +18,7 @@ export const env = {
   adminAccessPhrase: process.env.ADMIN_ACCESS_PHRASE ?? "",
   seedAdminUsername: process.env.SEED_ADMIN_USERNAME ?? "admin",
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD ?? "",
+  schedulerSecret: process.env.SCHEDULER_SECRET ?? "",
 };
 
 export { required };
