@@ -101,14 +101,25 @@ See `backend/.env.example` and `frontend/.env.example` for the full list.
 
 ## Deployment
 
-- **Backend + database**: Railway. One project, two services - the Node
-  backend (`backend/railway.json` configures the build/start commands and
-  runs `prisma migrate deploy` on every start) and a Postgres plugin, with
-  `DATABASE_URL` linked between them from Railway's dashboard.
+No-card-required path (recommended if you don't want to link a payment method
+anywhere):
+
+- **Database**: Neon (free tier, no card required). Create a project, copy
+  the pooled connection string.
+- **Backend**: Render (free tier, no card required for a free web service).
+  `render.yaml` at the repo root is a Render Blueprint - importing the repo
+  there auto-configures the build/start commands and prompts for env vars.
+  On the free plan the service spins down after inactivity, so the first
+  request after a quiet period is slow to wake up.
 - **Frontend**: Netlify. `netlify.toml` at the repo root points Netlify at
   `frontend/` and uses the official Next.js runtime plugin. Set
-  `NEXT_PUBLIC_API_URL` in Netlify's env vars to the Railway backend's public
+  `NEXT_PUBLIC_API_URL` in Netlify's env vars to the Render backend's public
   URL + `/api`.
 
-After the backend is deployed, run `npm run seed` from Railway's shell (or
-locally against the same `DATABASE_URL`) to create the initial admin account.
+`backend/railway.json` is also included as an alternative if you later want
+to move the backend + database onto Railway instead (note: Railway requires
+a payment method on file even on its free trial).
+
+The backend's `start:prod` script runs migrations and the (idempotent) seed
+script automatically on every boot, so the initial admin account is created
+on first deploy with no manual step required.
