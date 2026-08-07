@@ -98,3 +98,17 @@ and only share the passphrase with people who should have admin access.
 ## Environment variables
 
 See `backend/.env.example` and `frontend/.env.example` for the full list.
+
+## Deployment
+
+- **Backend + database**: Railway. One project, two services - the Node
+  backend (`backend/railway.json` configures the build/start commands and
+  runs `prisma migrate deploy` on every start) and a Postgres plugin, with
+  `DATABASE_URL` linked between them from Railway's dashboard.
+- **Frontend**: Netlify. `netlify.toml` at the repo root points Netlify at
+  `frontend/` and uses the official Next.js runtime plugin. Set
+  `NEXT_PUBLIC_API_URL` in Netlify's env vars to the Railway backend's public
+  URL + `/api`.
+
+After the backend is deployed, run `npm run seed` from Railway's shell (or
+locally against the same `DATABASE_URL`) to create the initial admin account.
