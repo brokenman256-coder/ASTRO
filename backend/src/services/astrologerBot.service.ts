@@ -93,7 +93,10 @@ export function generateAstrologerProfile() {
     experienceYears,
     rating,
     bio: `${name} ${bioTemplate}`,
-    fallbackPhotoUrl: `https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(name)}`,
+    // Real (licensed-for-any-use) human portrait photos, not a cartoon
+    // avatar - free, instant, no API key. Used whenever OPENAI_API_KEY
+    // isn't set, or for bulk seeding where per-image AI cost isn't worth it.
+    fallbackPhotoUrl: `https://randomuser.me/api/portraits/${first.gender === "man" ? "men" : "women"}/${Math.floor(Math.random() * 100)}.jpg`,
   };
 }
 

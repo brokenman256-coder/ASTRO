@@ -71,7 +71,7 @@ astrologersRouter.post("/admin", requireAdmin, async (req, res) => {
     data: {
       ...parsed.data,
       rating: parsed.data.rating ?? 4.5,
-      photoUrl: parsed.data.photoUrl ?? `https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(parsed.data.name)}`,
+      photoUrl: parsed.data.photoUrl ?? `https://randomuser.me/api/portraits/${Math.random() < 0.5 ? "men" : "women"}/${Math.floor(Math.random() * 100)}.jpg`,
       source: "MANUAL",
     },
   });
