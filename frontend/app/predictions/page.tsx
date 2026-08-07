@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { apiPost, ZODIAC_SIGNS } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { apiGet, apiPost, ZODIAC_SIGNS } from "@/lib/api";
 import { getUserToken } from "@/lib/session";
+
+interface PastPrediction {
+  id: string;
+  category: string;
+  zodiacSign: string;
+  resultText: string;
+  createdAt: string;
+}
 
 const CATEGORIES = [
   { value: "DAILY", label: "Daily" },
@@ -20,6 +28,15 @@ export default function PredictionsPage() {
   const [aiConfigured, setAiConfigured] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [pastPredictions, setPastPredictions] = useState<PastPrediction[]>([]);
+
+  useEffect(() => {
+    const token = getUserToken();
+    if (!token) return;
+    apiGet("/predictions/mine", token)
+      .then((d) => setPastPredictions(d.predictions))
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,6 +51,7 @@ export default function PredictionsPage() {
       );
       setResult(data.prediction.resultText);
       setAiConfigured(data.aiConfigured);
+      if (getUserToken()) setPastPredictions((prev) => [data.prediction, ...prev]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -85,6 +103,22 @@ export default function PredictionsPage() {
             </p>
           )}
           <p className="whitespace-pre-line text-slate-200">{result}</p>
+        </div>
+      )}
+
+      {pastPredictions.length > 0 && (
+        <div className="card p-6">
+          <h2 className="font-medium mb-4">Your past readings</h2>
+          <div className="space-y-4">
+            {pastPredictions.map((p) => (
+              <div key={p.id} className="border-b border-white/5 pb-4 last:border-none last:pb-0">
+                <p className="text-xs text-slate-500 mb-1">
+                  {p.category} · {p.zodiacSign} · {new Date(p.createdAt).toLocaleDateString()}
+                </p>
+                <p className="text-sm text-slate-300 whitespace-pre-line">{p.resultText}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -7,6 +7,7 @@ import { clearAdminToken } from "@/lib/session";
 const LINKS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/astrologers", label: "Astrologers" },
+  { href: "/admin/guided-predictions", label: "Guided Predictions" },
   { href: "/admin/wallet-approvals", label: "Wallet Approvals" },
   { href: "/admin/bot-command", label: "Bot Command Center" },
   { href: "/admin/branding", label: "Branding" },

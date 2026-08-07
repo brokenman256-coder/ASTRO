@@ -38,6 +38,39 @@ ${input.zodiacSign} where appropriate.`;
   return result;
 }
 
+const GUIDED_SYSTEM = `You are Astro's senior astrology advisor. An admin who personally knows a
+user's situation gives you casual, informal keypoints about what their reading should cover -
+these are not suggestions, they are facts you must build the reading around. Your job is to turn
+those keypoints into a confident, warm, specific, formally-written astrology prediction, exactly
+the way a professional astrologer would deliver it. Weave in astrological language tied to the
+user's zodiac sign (planetary influences, houses, transits) as framing, but never contradict or
+soften the substance of the keypoints - expand and formalize them, don't replace them. Do not
+mention that you were given keypoints or that an admin was involved. Write in warm, vivid,
+second-person language, 180-260 words, organized in short paragraphs.`;
+
+export interface GuidedPredictionInput {
+  category: "DAILY" | "LOVE" | "CAREER" | "HEALTH" | "GENERAL";
+  zodiacSign: string;
+  userName?: string;
+  keypoints: string;
+}
+
+export async function generateGuidedPrediction(input: GuidedPredictionInput) {
+  const prompt = `Write a formal astrology prediction for this user.
+Zodiac sign: ${input.zodiacSign}
+Category: ${input.category}
+${input.userName ? `User's name: ${input.userName}` : ""}
+
+Admin's keypoints (the reading MUST be built around these, faithfully and specifically):
+${input.keypoints}
+
+Deliver this as a polished, professional reading - not a summary of the keypoints, but the full
+astrological reading they imply.`;
+
+  const result = await generateText({ system: GUIDED_SYSTEM, prompt, maxTokens: 700 });
+  return result;
+}
+
 const PALM_SYSTEM = `You are Astro's expert palmist with decades of experience reading palm lines,
 mounts, and hand shape. Analyze the uploaded palm photo directly and give a strong, specific,
 confident reading covering: life line, heart line, head line, fate line (if visible), and any

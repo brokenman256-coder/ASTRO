@@ -25,3 +25,13 @@ adminRouter.get("/overview", requireAdmin, async (_req, res) => {
     latestBroadcast,
   });
 });
+
+// User picker for admin tools (e.g. guided predictions).
+adminRouter.get("/users", requireAdmin, async (_req, res) => {
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    select: { id: true, name: true, email: true },
+  });
+  res.json({ users });
+});
