@@ -29,11 +29,23 @@ async function main() {
     create: { id: 1 },
   });
 
+  await prisma.astrologerBotSettings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1 },
+  });
+
   const existingAstrologers = await prisma.astrologer.count();
   if (existingAstrologers === 0) {
+    // Seed with placeholder avatars, not AI-generated headshots - this runs
+    // on every boot, and we don't want to spend on image generation here.
     for (let i = 0; i < 6; i++) {
-      const profile = generateAstrologerProfile();
-      await prisma.astrologer.create({ data: { ...profile, source: "BOT" } });
+      const { fallbackPhotoUrl, gender, age, ...profile } = generateAstrologerProfile();
+      void gender;
+      void age;
+      await prisma.astrologer.create({
+        data: { ...profile, photoUrl: fallbackPhotoUrl, source: "BOT" },
+      });
     }
     console.log("Seeded 6 sample astrologer profiles.");
   }

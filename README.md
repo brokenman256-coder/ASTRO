@@ -48,6 +48,23 @@ lowest-rated" auto-retires the weakest active profile, mirroring how apps
 like AstroTalk rotate their listed astrologers. Admins can also add/retire
 profiles manually.
 
+**Auto-bot**: the same "Astrologers" page has an on/off toggle to run this
+automatically on a schedule (default every 10 minutes) instead of manually.
+When on, it adds one astrologer per interval; if the active roster is at its
+configured cap (default 30), it retires the weakest profile first so the
+list stays bounded. Photos are AI-generated photorealistic headshots via
+`OPENAI_API_KEY` when set (falls back to a placeholder avatar otherwise) -
+see the cost note in `backend/.env.example` before turning this on, since a
+10-minute cadence with real image generation runs indefinitely and costs
+real money per image. It's off by default; turn it on from the dashboard
+once you're ready.
+
+The scheduler runs in-process, so it needs the backend server to stay
+running continuously - on Render's free tier the service sleeps after ~15
+minutes of no incoming traffic, which pauses it. A free uptime pinger (e.g.
+cron-job.org hitting `/api/health` every 10 minutes) keeps it alive, or use
+a Render plan that doesn't sleep.
+
 ### AI predictions & palm reading
 Powered by Claude via `ANTHROPIC_API_KEY` in `backend/.env`. Without a key
 set, these endpoints return a clear "AI not configured" placeholder instead

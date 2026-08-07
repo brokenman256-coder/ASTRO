@@ -10,6 +10,7 @@ import { brandingRouter } from "./routes/branding.routes";
 import { botRouter } from "./routes/bot.routes";
 import { adminRouter } from "./routes/admin.routes";
 import { remediesRouter } from "./routes/remedies.routes";
+import { startAstrologerScheduler } from "./lib/astrologerScheduler";
 
 const app = express();
 
@@ -36,4 +37,5 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 
 app.listen(env.port, () => {
   console.log(`Astro backend listening on port ${env.port}`);
+  startAstrologerScheduler();
 });

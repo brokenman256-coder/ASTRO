@@ -48,6 +48,15 @@ model Astrologer {
   retiredAt        DateTime?
 }
 
+model AstrologerBotSettings {
+  id                    Int       @id @default(1)
+  enabled               Boolean   @default(false)
+  intervalMinutes       Int       @default(10)
+  maxActiveAstrologers  Int       @default(30)
+  lastRunAt             DateTime?
+  updatedAt             DateTime  @updatedAt
+}
+
 enum TxType {
   TOPUP_REQUEST
   DEBIT

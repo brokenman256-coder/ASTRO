@@ -13,8 +13,16 @@ interface Astrologer {
   experienceYears: number;
   rating: number;
   bio: string;
+  photoUrl: string;
   active: boolean;
   source: "MANUAL" | "BOT";
+}
+
+interface SchedulerSettings {
+  enabled: boolean;
+  intervalMinutes: number;
+  maxActiveAstrologers: number;
+  lastRunAt: string | null;
 }
 
 export default function AdminAstrologersPage() {
@@ -22,6 +30,8 @@ export default function AdminAstrologersPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [form, setForm] = useState({ name: "", specialty: "", experienceYears: "5", bio: "" });
+  const [scheduler, setScheduler] = useState<SchedulerSettings | null>(null);
+  const [schedulerSaving, setSchedulerSaving] = useState(false);
 
   const token = getAdminToken();
 
@@ -30,10 +40,27 @@ export default function AdminAstrologersPage() {
     setAstrologers(data.astrologers);
   }
 
+  async function refreshScheduler() {
+    const data = await apiGet("/astrologers/admin/bot/settings", token);
+    setScheduler(data.settings);
+  }
+
   useEffect(() => {
     refresh();
+    refreshScheduler();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function saveScheduler(next: Partial<SchedulerSettings>) {
+    if (!scheduler) return;
+    setSchedulerSaving(true);
+    try {
+      const data = await apiPost("/astrologers/admin/bot/settings", next, token);
+      setScheduler(data.settings);
+    } finally {
+      setSchedulerSaving(false);
+    }
+  }
 
   async function runBotAdd() {
     setBusy(true);
@@ -102,6 +129,60 @@ export default function AdminAstrologersPage() {
       </div>
       {message && <p className="text-sm text-brand-light mb-6">{message}</p>}
 
+      {scheduler && (
+        <div className="card p-6 mb-8 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-medium">Auto-bot (runs on a schedule)</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                When on, the bot adds a new astrologer every {scheduler.intervalMinutes} minute
+                {scheduler.intervalMinutes === 1 ? "" : "s"} on its own, generating an AI headshot
+                if <code className="text-slate-400">OPENAI_API_KEY</code> is configured. It retires
+                the weakest profile first if the roster is at its cap, so the list stays bounded.
+              </p>
+            </div>
+            <button
+              className={scheduler.enabled ? "btn-primary" : "btn-secondary"}
+              onClick={() => saveScheduler({ enabled: !scheduler.enabled })}
+              disabled={schedulerSaving}
+            >
+              {scheduler.enabled ? "On" : "Off"}
+            </button>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-slate-400 block mb-1">Interval (minutes)</label>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                max={1440}
+                value={scheduler.intervalMinutes}
+                onChange={(e) => setScheduler({ ...scheduler, intervalMinutes: Number(e.target.value) })}
+                onBlur={() => saveScheduler({ intervalMinutes: scheduler.intervalMinutes })}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400 block mb-1">Max active roster size</label>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                max={500}
+                value={scheduler.maxActiveAstrologers}
+                onChange={(e) => setScheduler({ ...scheduler, maxActiveAstrologers: Number(e.target.value) })}
+                onBlur={() => saveScheduler({ maxActiveAstrologers: scheduler.maxActiveAstrologers })}
+              />
+            </div>
+          </div>
+
+          <p className="text-xs text-slate-500">
+            Last ran: {scheduler.lastRunAt ? new Date(scheduler.lastRunAt).toLocaleString() : "never"}
+          </p>
+        </div>
+      )}
+
       <form onSubmit={handleManualAdd} className="card p-6 space-y-3 mb-8">
         <h2 className="font-medium">Add astrologer manually</h2>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -116,11 +197,15 @@ export default function AdminAstrologersPage() {
       <div className="space-y-3">
         {astrologers.map((a) => (
           <div key={a.id} className="card p-4 flex items-center justify-between">
-            <div>
-              <p className="font-medium">
-                {a.name} <span className="text-xs text-slate-500">· {a.source === "BOT" ? "bot-created" : "manual"}</span>
-              </p>
-              <p className="text-xs text-slate-400">{a.specialty} · {a.experienceYears} yrs · ★ {a.rating.toFixed(1)}</p>
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a.photoUrl} alt={a.name} className="w-10 h-10 rounded-full object-cover bg-white/10" />
+              <div>
+                <p className="font-medium">
+                  {a.name} <span className="text-xs text-slate-500">· {a.source === "BOT" ? "bot-created" : "manual"}</span>
+                </p>
+                <p className="text-xs text-slate-400">{a.specialty} · {a.experienceYears} yrs · ★ {a.rating.toFixed(1)}</p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <span className={"text-xs px-2 py-1 rounded-full " + (a.active ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-500")}>

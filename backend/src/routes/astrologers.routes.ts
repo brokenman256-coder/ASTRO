@@ -80,3 +80,31 @@ astrologersRouter.post("/admin/bot/prune", requireAdmin, async (req, res) => {
   const retired = await botPruneAstrologers(parsed.data);
   res.json({ retired, message: `Bot retired ${retired.length} astrologer profile(s).` });
 });
+
+// ---- Astrologer auto-bot scheduler ----
+
+astrologersRouter.get("/admin/bot/settings", requireAdmin, async (_req, res) => {
+  const settings = await prisma.astrologerBotSettings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1 },
+  });
+  res.json({ settings });
+});
+
+const schedulerSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  intervalMinutes: z.number().int().min(1).max(1440).optional(),
+  maxActiveAstrologers: z.number().int().min(1).max(500).optional(),
+});
+
+astrologersRouter.post("/admin/bot/settings", requireAdmin, async (req, res) => {
+  const parsed = schedulerSettingsSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+  const settings = await prisma.astrologerBotSettings.upsert({
+    where: { id: 1 },
+    update: parsed.data,
+    create: { id: 1, ...parsed.data },
+  });
+  res.json({ settings });
+});
