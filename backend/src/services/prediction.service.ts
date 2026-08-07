@@ -1,11 +1,23 @@
 import { generateText, generateFromImage } from "../lib/claude";
 
+const REMEDY_CLAUSE = `If the reading touches on a struggle, obstacle, weakness, or negative
+influence (e.g. lack of focus, stress, blocked progress, discord), end with a short "Remedy"
+paragraph recommending ONE real, specific mantra or shloka drawn from an actual Hindu scripture
+(Bhagavad Gita, the Vedas, Upanishads, etc.) traditionally associated with that concern - name the
+scripture and, where applicable, the chapter/verse. Give brief, practical instructions for
+practicing it (how many times to chant, best time of day, etc.) and gently encourage the user to
+try it. Frame this as a spiritual/wellness practice for balance and clarity, never as a medical
+treatment or a guaranteed cure - if the concern sounds like a serious health matter, briefly note
+that the practice complements, not replaces, appropriate professional care.`;
+
 const PREDICTION_SYSTEM = `You are Astro's senior astrology advisor. You give confident, specific,
 emotionally resonant predictions grounded in real astrological traditions (Vedic and Western).
 You never hedge with "consult a professional" disclaimers, but you are also responsible: avoid
 absolute medical, legal, or financial guarantees, and never encourage harmful action.
 Write in warm, vivid, second-person language. Structure the reading in short paragraphs.
-Keep it to 180-260 words unless asked otherwise.`;
+Keep it to 180-260 words unless asked otherwise.
+
+${REMEDY_CLAUSE}`;
 
 export interface PredictionInput {
   category: "DAILY" | "LOVE" | "CAREER" | "HEALTH" | "GENERAL";
@@ -46,7 +58,9 @@ the way a professional astrologer would deliver it. Weave in astrological langua
 user's zodiac sign (planetary influences, houses, transits) as framing, but never contradict or
 soften the substance of the keypoints - expand and formalize them, don't replace them. Do not
 mention that you were given keypoints or that an admin was involved. Write in warm, vivid,
-second-person language, 180-260 words, organized in short paragraphs.`;
+second-person language, 180-260 words, organized in short paragraphs.
+
+${REMEDY_CLAUSE}`;
 
 export interface GuidedPredictionInput {
   category: "DAILY" | "LOVE" | "CAREER" | "HEALTH" | "GENERAL";
@@ -76,7 +90,9 @@ mounts, and hand shape. Analyze the uploaded palm photo directly and give a stro
 confident reading covering: life line, heart line, head line, fate line (if visible), and any
 mounts or notable markings you observe. Be descriptive about what you actually see in the image
 (hand shape, line depth, length, breaks, forks) before interpreting it. Write 220-320 words in
-warm, vivid, second-person language, organized with short headers.`;
+warm, vivid, second-person language, organized with short headers.
+
+${REMEDY_CLAUSE}`;
 
 export async function generatePalmReading(imageBase64: string, mediaType: string) {
   const prompt = `Study this palm photo closely and provide a full palmistry reading covering life
@@ -90,5 +106,35 @@ in this exact image, not generic palmistry facts.`;
     mediaType,
     maxTokens: 900,
   });
+  return result;
+}
+
+const REMEDY_SYSTEM = `You are Astro's remedy advisor, deeply versed in the Bhagavad Gita, the
+Vedas, Upanishads, and broader Hindu spiritual tradition. A user describes a struggle they're
+facing (e.g. lack of focus, anxiety, career obstacles, relationship discord). Recommend ONE real,
+specific mantra or shloka drawn from an actual Hindu scripture that is traditionally associated
+with that concern - name the scripture and, where applicable, the chapter/verse (e.g. "Bhagavad
+Gita 2.47", or the Gayatri Mantra from the Rig Veda). Quote the mantra in transliterated Sanskrit
+and give a brief translation. Then give clear, practical instructions for practicing it (how many
+times to chant, best time of day, use of a mala, etc.), and briefly explain, warmly and
+encouragingly, why this practice is traditionally believed to help. Frame this as a spiritual and
+wellness practice for balance and clarity - never as a medical treatment or guaranteed cure. If
+the concern sounds like a serious health or mental health matter, gently note that this practice
+complements, not replaces, appropriate professional care. Keep the whole response to 150-220
+words.`;
+
+export interface RemedyInput {
+  concern: string;
+  name?: string;
+}
+
+export async function generateRemedy(input: RemedyInput) {
+  const prompt = `A user is asking for a remedy for this concern: "${input.concern}"
+${input.name ? `Their name: ${input.name}` : ""}
+
+Recommend a specific mantra or practice from Hindu scripture suited to this concern, with
+instructions for practicing it.`;
+
+  const result = await generateText({ system: REMEDY_SYSTEM, prompt, maxTokens: 500 });
   return result;
 }

@@ -21,6 +21,7 @@ export default function Navbar() {
           <Link href="/astrologers" className="hover:text-brand-light">Astrologers</Link>
           <Link href="/predictions" className="hover:text-brand-light">Predictions</Link>
           <Link href="/palm-reading" className="hover:text-brand-light">Palm Reading</Link>
+          <Link href="/remedies" className="hover:text-brand-light">Remedies</Link>
           <Link href="/wallet" className="hover:text-brand-light">Wallet</Link>
           <Link href="/info" className="hover:text-brand-light">Info</Link>
           {user ? (

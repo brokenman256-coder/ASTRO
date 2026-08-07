@@ -73,6 +73,11 @@ export default function HomePage() {
           desc="Upload a photo of your palm for a detailed AI-guided palmistry reading."
           href="/palm-reading"
         />
+        <FeatureCard
+          title="Remedies"
+          desc="Get a mantra or scripture-based practice from the Gita and Vedas for what's troubling you."
+          href="/remedies"
+        />
       </section>
     </div>
   );

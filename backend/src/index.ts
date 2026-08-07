@@ -9,6 +9,7 @@ import { walletRouter } from "./routes/wallet.routes";
 import { brandingRouter } from "./routes/branding.routes";
 import { botRouter } from "./routes/bot.routes";
 import { adminRouter } from "./routes/admin.routes";
+import { remediesRouter } from "./routes/remedies.routes";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/wallet", walletRouter);
 app.use("/api/branding", brandingRouter);
 app.use("/api/bot", botRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/remedies", remediesRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

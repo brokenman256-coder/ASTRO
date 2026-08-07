@@ -59,6 +59,15 @@ for strong, specific astrology/palmistry output - not a custom-trained model
 (training one from scratch would need a large labeled dataset and dedicated
 infrastructure).
 
+### Remedies
+Every prediction and palm reading automatically includes a "Remedy" section
+when the reading touches on a struggle - a real, specific mantra or shloka
+from the Bhagavad Gita, Vedas, or Upanishads, with practical instructions,
+framed as a spiritual/wellness practice rather than a medical treatment.
+There's also a dedicated **Remedies** page where a user can directly
+describe what's troubling them (e.g. lack of focus, anxiety, career
+blocks) and get a tailored remedy on demand.
+
 ### Bot command center
 Admin dashboard → **Bot Command Center**. Type an instruction in plain
 language; AstroBot (Claude) rewrites it as a formal announcement, which you

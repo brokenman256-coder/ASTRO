@@ -16,6 +16,7 @@ model User {
   createdAt      DateTime           @default(now())
   predictions    Prediction[]
   palmReadings   PalmReading[]
+  remedies       Remedy[]
   transactions   WalletTransaction[]
 }
 
@@ -97,6 +98,15 @@ model PalmReading {
   userId      String?
   user        User?     @relation(fields: [userId], references: [id])
   imageData   String    // base64 data URI of uploaded palm image
+  resultText  String
+  createdAt   DateTime  @default(now())
+}
+
+model Remedy {
+  id          String    @id @default(uuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  concern     String
   resultText  String
   createdAt   DateTime  @default(now())
 }
