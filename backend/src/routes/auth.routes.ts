@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { env } from "../lib/env";
 import { hashPassword, verifyPassword, signUserToken, signAdminToken } from "../lib/auth";
+import { requireAdmin, AuthedRequest } from "../middleware/auth";
 
 export const authRouter = Router();
 
@@ -110,4 +111,38 @@ authRouter.post("/admin/login", adminLoginLimiter, async (req, res) => {
 
   const token = signAdminToken({ sub: admin.id, username: admin.username, role: "admin" });
   res.json({ token, admin: { id: admin.id, username: admin.username } });
+});
+
+// Self-service credential change: requires a valid admin session AND the
+// current password, so a stolen JWT alone can't lock the real admin out.
+const changeCredentialsSchema = z.object({
+  currentPassword: z.string().min(1),
+  newUsername: z.string().min(3).max(100).optional(),
+  newPassword: z.string().min(8).max(200).optional(),
+});
+
+authRouter.put("/admin/credentials", requireAdmin, async (req: AuthedRequest, res) => {
+  const parsed = changeCredentialsSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+  const { currentPassword, newUsername, newPassword } = parsed.data;
+  if (!newUsername && !newPassword) {
+    return res.status(400).json({ error: "Provide a new username and/or password" });
+  }
+
+  const admin = await prisma.admin.findUnique({ where: { id: req.admin!.sub } });
+  if (!admin) return res.status(404).json({ error: "Admin not found" });
+  const ok = await verifyPassword(currentPassword, admin.passwordHash);
+  if (!ok) return res.status(401).json({ error: "Current password is incorrect" });
+
+  if (newUsername && newUsername !== admin.username) {
+    const clash = await prisma.admin.findUnique({ where: { username: newUsername } });
+    if (clash) return res.status(409).json({ error: "That username is already taken" });
+  }
+
+  const data: { username?: string; passwordHash?: string } = {};
+  if (newUsername) data.username = newUsername;
+  if (newPassword) data.passwordHash = await hashPassword(newPassword);
+
+  const updated = await prisma.admin.update({ where: { id: admin.id }, data });
+  res.json({ admin: { id: updated.id, username: updated.username } });
 });
