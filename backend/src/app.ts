@@ -1,3 +1,11 @@
+// Must be imported before any router is defined - patches Express so a
+// rejected promise inside an async route handler is forwarded to the error
+// middleware below instead of becoming an unhandled rejection that crashes
+// the whole serverless function (this bit a route that called the AI
+// provider without its own try/catch: a provider failure took the entire
+// function down with a raw Lambda "Runtime.ExitError" instead of a normal
+// JSON error response).
+import "express-async-errors";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -43,10 +51,14 @@ export function createApp() {
   app.use("/conversations", conversationsRouter);
   app.use("/admin/ai-settings", adminAIRouter);
 
+  // Last-resort safety net - any route (including AI provider calls that
+  // threw) that didn't handle its own error lands here. Never leaks the
+  // technical error to the client, only logs it server-side.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+    if (res.headersSent) return;
+    res.status(500).json({ error: "Something went wrong. Please try again." });
   });
 
   return app;
