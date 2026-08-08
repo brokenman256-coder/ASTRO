@@ -12,6 +12,7 @@ const requestSchema = z.object({
   name: z.string().optional(),
   dob: z.string().optional(),
   question: z.string().max(500).optional(),
+  period: z.enum(["daily", "weekly", "monthly"]).optional(),
 });
 
 predictionsRouter.post("/", optionalUser, async (req: AuthedRequest, res) => {

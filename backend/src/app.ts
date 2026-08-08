@@ -11,6 +11,8 @@ import { botRouter } from "./routes/bot.routes";
 import { adminRouter } from "./routes/admin.routes";
 import { remediesRouter } from "./routes/remedies.routes";
 import { chatRouter } from "./routes/chat.routes";
+import { conversationsRouter } from "./routes/conversations.routes";
+import { adminAIRouter } from "./routes/adminAI.routes";
 
 // Route mounts intentionally have no "/api" prefix here - both entry points
 // (index.ts for a persistent server, netlify/functions/api.ts for
@@ -36,6 +38,8 @@ export function createApp() {
   app.use("/admin", adminRouter);
   app.use("/remedies", remediesRouter);
   app.use("/chat", chatRouter);
+  app.use("/conversations", conversationsRouter);
+  app.use("/admin/ai-settings", adminAIRouter);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

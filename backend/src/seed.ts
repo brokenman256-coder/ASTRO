@@ -2,7 +2,7 @@ import "dotenv/config";
 import { prisma } from "./lib/prisma";
 import { hashPassword } from "./lib/auth";
 import { env } from "./lib/env";
-import { generateAstrologerProfile } from "./services/astrologerBot.service";
+import { ASTROLOGER_PERSONAS } from "./seedAstrologers";
 
 async function main() {
   if (!env.seedAdminPassword) {
@@ -35,20 +35,18 @@ async function main() {
     create: { id: 1 },
   });
 
-  const existingAstrologers = await prisma.astrologer.count();
-  if (existingAstrologers === 0) {
-    // Seed with placeholder avatars, not AI-generated headshots - this runs
-    // on every boot, and we don't want to spend on image generation here.
-    for (let i = 0; i < 6; i++) {
-      const { fallbackPhotoUrl, gender, age, ...profile } = generateAstrologerProfile();
-      void gender;
-      void age;
-      await prisma.astrologer.create({
-        data: { ...profile, photoUrl: fallbackPhotoUrl, source: "BOT" },
-      });
-    }
-    console.log("Seeded 6 sample astrologer profiles.");
+  await prisma.adminAISettings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1 },
+  });
+
+  for (const persona of ASTROLOGER_PERSONAS) {
+    const existing = await prisma.astrologer.findFirst({ where: { name: persona.name } });
+    if (existing) continue;
+    await prisma.astrologer.create({ data: { ...persona, source: "MANUAL" } });
   }
+  console.log(`Ensured ${ASTROLOGER_PERSONAS.length} named astrologer personas exist.`);
 
   console.log("Seed complete.");
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminGuard from "@/components/AdminGuard";
 import AdminNav from "@/components/AdminNav";
-import { apiDelete, apiGet, apiPost } from "@/lib/api";
+import { apiDelete, apiGet, apiPatch, apiPost } from "@/lib/api";
 import { getAdminToken } from "@/lib/session";
 
 interface Astrologer {
@@ -16,7 +16,42 @@ interface Astrologer {
   photoUrl: string;
   active: boolean;
   source: "MANUAL" | "BOT";
+  personality: string;
+  tone: string;
+  languages: string[];
+  greeting: string;
+  astrologyStyle: string;
+  systemInstructions: string;
+  priceRupeesPerMinute: number;
 }
+
+interface PersonaFormState {
+  name: string;
+  specialty: string;
+  astrologyStyle: string;
+  experienceYears: string;
+  bio: string;
+  personality: string;
+  tone: string;
+  languages: string;
+  greeting: string;
+  systemInstructions: string;
+  priceRupeesPerMinute: string;
+}
+
+const EMPTY_PERSONA: PersonaFormState = {
+  name: "",
+  specialty: "",
+  astrologyStyle: "",
+  experienceYears: "5",
+  bio: "",
+  personality: "",
+  tone: "",
+  languages: "English",
+  greeting: "",
+  systemInstructions: "",
+  priceRupeesPerMinute: "15",
+};
 
 interface SchedulerSettings {
   enabled: boolean;
@@ -30,7 +65,9 @@ export default function AdminAstrologersPage() {
   const [astrologers, setAstrologers] = useState<Astrologer[]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  const [form, setForm] = useState({ name: "", specialty: "", experienceYears: "5", bio: "" });
+  const [form, setForm] = useState<PersonaFormState>(EMPTY_PERSONA);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<PersonaFormState>(EMPTY_PERSONA);
   const [scheduler, setScheduler] = useState<SchedulerSettings | null>(null);
   const [schedulerSaving, setSchedulerSaving] = useState(false);
   const [bulkCount, setBulkCount] = useState("1000");
@@ -104,16 +141,56 @@ export default function AdminAstrologersPage() {
     }
   }
 
+function toPayload(f: PersonaFormState) {
+    return {
+      name: f.name,
+      specialty: f.specialty,
+      astrologyStyle: f.astrologyStyle || f.specialty,
+      experienceYears: parseInt(f.experienceYears, 10) || 0,
+      bio: f.bio,
+      personality: f.personality || undefined,
+      tone: f.tone || undefined,
+      languages: f.languages.split(",").map((l) => l.trim()).filter(Boolean),
+      greeting: f.greeting || undefined,
+      systemInstructions: f.systemInstructions || undefined,
+      priceRupeesPerMinute: parseInt(f.priceRupeesPerMinute, 10) || 15,
+    };
+  }
+
   async function handleManualAdd(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
-      await apiPost(
-        "/astrologers/admin",
-        { ...form, experienceYears: parseInt(form.experienceYears, 10) },
-        token
-      );
-      setForm({ name: "", specialty: "", experienceYears: "5", bio: "" });
+      await apiPost("/astrologers/admin", toPayload(form), token);
+      setForm(EMPTY_PERSONA);
+      await refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function startEdit(a: Astrologer) {
+    setEditingId(a.id);
+    setEditForm({
+      name: a.name,
+      specialty: a.specialty,
+      astrologyStyle: a.astrologyStyle,
+      experienceYears: String(a.experienceYears),
+      bio: a.bio,
+      personality: a.personality,
+      tone: a.tone,
+      languages: a.languages.join(", "),
+      greeting: a.greeting,
+      systemInstructions: a.systemInstructions,
+      priceRupeesPerMinute: String(a.priceRupeesPerMinute),
+    });
+  }
+
+  async function handleEditSave(id: string) {
+    setBusy(true);
+    try {
+      await apiPatch(`/astrologers/admin/${id}`, toPayload(editForm), token);
+      setEditingId(null);
       await refresh();
     } finally {
       setBusy(false);
@@ -244,14 +321,13 @@ export default function AdminAstrologersPage() {
       )}
 
       <form onSubmit={handleManualAdd} className="card p-6 space-y-3 mb-8">
-        <h2 className="font-medium">Add astrologer manually</h2>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <input className="input" placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-          <input className="input" placeholder="Specialty" value={form.specialty} onChange={(e) => setForm({ ...form, specialty: e.target.value })} required />
-          <input className="input" type="number" min={0} placeholder="Years of experience" value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: e.target.value })} required />
-        </div>
-        <textarea className="input" placeholder="Bio" rows={2} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} required />
-        <button className="btn-primary" disabled={busy}>Add astrologer</button>
+        <h2 className="font-medium">Add a new AI astrologer</h2>
+        <p className="text-xs text-slate-500">
+          Create a fully independent AI persona - no code changes needed. The system instructions
+          define how this astrologer talks and what it focuses on.
+        </p>
+        <PersonaFields value={form} onChange={setForm} />
+        <button className="btn-primary" disabled={busy}>Create astrologer</button>
       </form>
 
       <div className="flex items-center justify-between mb-3">
@@ -275,27 +351,44 @@ export default function AdminAstrologersPage() {
           })
           .slice(0, visibleCount)
           .map((a) => (
-            <div key={a.id} className="card p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.photoUrl} alt={a.name} className="w-10 h-10 rounded-full object-cover bg-orange-50" />
-                <div>
-                  <p className="font-medium">
-                    {a.name} <span className="text-xs text-slate-500">· {a.source === "BOT" ? "bot-created" : "manual"}</span>
-                  </p>
-                  <p className="text-xs text-slate-500">{a.specialty} · {a.experienceYears} yrs · ★ {a.rating.toFixed(1)}</p>
+            <div key={a.id} className="card p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={a.photoUrl} alt={a.name} className="w-10 h-10 rounded-full object-cover bg-orange-50" />
+                  <div>
+                    <p className="font-medium">
+                      {a.name} <span className="text-xs text-slate-500">· {a.source === "BOT" ? "bot-created" : "manual"}</span>
+                    </p>
+                    <p className="text-xs text-slate-500">{a.specialty} · {a.experienceYears} yrs · ★ {a.rating.toFixed(1)} · ₹{a.priceRupeesPerMinute}/min</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={"text-xs px-2 py-1 rounded-full " + (a.active ? "bg-green-500/20 text-green-600" : "bg-orange-50 text-slate-500")}>
+                    {a.active ? "Active" : "Retired"}
+                  </span>
+                  <button
+                    className="text-xs text-brand-dark hover:underline"
+                    onClick={() => (editingId === a.id ? setEditingId(null) : startEdit(a))}
+                  >
+                    {editingId === a.id ? "Close" : "Edit"}
+                  </button>
+                  {a.active && (
+                    <button className="text-xs text-red-600 hover:underline" onClick={() => handleRetire(a.id)} disabled={busy}>
+                      Retire
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className={"text-xs px-2 py-1 rounded-full " + (a.active ? "bg-green-500/20 text-green-600" : "bg-orange-50 text-slate-500")}>
-                  {a.active ? "Active" : "Retired"}
-                </span>
-                {a.active && (
-                  <button className="text-xs text-red-600 hover:underline" onClick={() => handleRetire(a.id)} disabled={busy}>
-                    Retire
+
+              {editingId === a.id && (
+                <div className="mt-4 pt-4 border-t border-orange-100 space-y-3">
+                  <PersonaFields value={editForm} onChange={setEditForm} />
+                  <button className="btn-primary !py-1.5" onClick={() => handleEditSave(a.id)} disabled={busy}>
+                    Save changes
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ))}
       </div>
@@ -306,5 +399,39 @@ export default function AdminAstrologersPage() {
         </button>
       )}
     </AdminGuard>
+  );
+}
+
+function PersonaFields({
+  value,
+  onChange,
+}: {
+  value: PersonaFormState;
+  onChange: (v: PersonaFormState) => void;
+}) {
+  return (
+    <>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <input className="input" placeholder="Name" value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })} required />
+        <input className="input" placeholder="Specialty (e.g. Love & Relationships)" value={value.specialty} onChange={(e) => onChange({ ...value, specialty: e.target.value })} required />
+        <input className="input" placeholder="Astrology style (e.g. Vedic Astrology)" value={value.astrologyStyle} onChange={(e) => onChange({ ...value, astrologyStyle: e.target.value })} />
+        <input className="input" type="number" min={0} placeholder="Years of experience" value={value.experienceYears} onChange={(e) => onChange({ ...value, experienceYears: e.target.value })} required />
+        <input className="input" placeholder="Languages, comma-separated" value={value.languages} onChange={(e) => onChange({ ...value, languages: e.target.value })} />
+        <input className="input" type="number" min={1} placeholder="Price (₹/min)" value={value.priceRupeesPerMinute} onChange={(e) => onChange({ ...value, priceRupeesPerMinute: e.target.value })} />
+      </div>
+      <textarea className="input" placeholder="Bio (shown on the marketplace)" rows={2} value={value.bio} onChange={(e) => onChange({ ...value, bio: e.target.value })} required />
+      <div className="grid sm:grid-cols-2 gap-3">
+        <input className="input" placeholder="Personality (e.g. Warm, empathetic)" value={value.personality} onChange={(e) => onChange({ ...value, personality: e.target.value })} />
+        <input className="input" placeholder="Tone (e.g. Friendly and reassuring)" value={value.tone} onChange={(e) => onChange({ ...value, tone: e.target.value })} />
+      </div>
+      <textarea className="input" placeholder="Opening greeting shown when a chat starts" rows={2} value={value.greeting} onChange={(e) => onChange({ ...value, greeting: e.target.value })} />
+      <textarea
+        className="input"
+        placeholder="AI system instructions - how this astrologer should talk and what to focus on"
+        rows={4}
+        value={value.systemInstructions}
+        onChange={(e) => onChange({ ...value, systemInstructions: e.target.value })}
+      />
+    </>
   );
 }

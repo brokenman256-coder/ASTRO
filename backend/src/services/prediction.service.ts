@@ -1,4 +1,5 @@
-import { generateText, generateFromImage } from "../lib/claude";
+import { generateFromImage } from "../lib/claude";
+import { generateAIResponse } from "../providers";
 
 const REMEDY_CLAUSE = `If the reading touches on a struggle, obstacle, weakness, or negative
 influence (e.g. lack of focus, stress, blocked progress, discord), end with a short "Remedy"
@@ -25,6 +26,7 @@ export interface PredictionInput {
   name?: string;
   dob?: string;
   question?: string;
+  period?: "daily" | "weekly" | "monthly";
 }
 
 export async function generatePrediction(input: PredictionInput) {
@@ -35,19 +37,29 @@ export async function generatePrediction(input: PredictionInput) {
     HEALTH: "physical vitality, stress, and wellbeing",
     GENERAL: "a broad, well-rounded life reading",
   };
+  const periodLabel: Record<NonNullable<PredictionInput["period"]>, string> = {
+    daily: "today",
+    weekly: "this week",
+    monthly: "this month",
+  };
+  const period = input.period ?? "daily";
 
   const prompt = `Generate a strong, specific astrology prediction.
 Zodiac sign: ${input.zodiacSign}
 Focus area: ${focus[input.category]}
+Time horizon: a reading for ${periodLabel[period]}
 ${input.name ? `Name: ${input.name}` : ""}
 ${input.dob ? `Date of birth: ${input.dob}` : ""}
 ${input.question ? `Specific question from the user: ${input.question}` : ""}
 
 Give a prediction that feels precise and personal, referencing planetary influences relevant to
-${input.zodiacSign} where appropriate.`;
+${input.zodiacSign} where appropriate. Keep the guidance scoped to ${periodLabel[period]} specifically.`;
 
-  const result = await generateText({ system: PREDICTION_SYSTEM, prompt, maxTokens: 700 });
-  return result;
+  return generateAIResponse({
+    system: PREDICTION_SYSTEM,
+    messages: [{ role: "user", content: prompt }],
+    maxTokens: 700,
+  });
 }
 
 const GUIDED_SYSTEM = `You are Astro's senior astrology advisor. An admin who personally knows a
@@ -81,8 +93,11 @@ ${input.keypoints}
 Deliver this as a polished, professional reading - not a summary of the keypoints, but the full
 astrological reading they imply.`;
 
-  const result = await generateText({ system: GUIDED_SYSTEM, prompt, maxTokens: 700 });
-  return result;
+  return generateAIResponse({
+    system: GUIDED_SYSTEM,
+    messages: [{ role: "user", content: prompt }],
+    maxTokens: 700,
+  });
 }
 
 const PALM_SYSTEM = `You are Astro's expert palmist with decades of experience reading palm lines,
@@ -135,6 +150,9 @@ ${input.name ? `Their name: ${input.name}` : ""}
 Recommend a specific mantra or practice from Hindu scripture suited to this concern, with
 instructions for practicing it.`;
 
-  const result = await generateText({ system: REMEDY_SYSTEM, prompt, maxTokens: 500 });
-  return result;
+  return generateAIResponse({
+    system: REMEDY_SYSTEM,
+    messages: [{ role: "user", content: prompt }],
+    maxTokens: 500,
+  });
 }

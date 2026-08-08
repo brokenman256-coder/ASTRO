@@ -48,6 +48,13 @@ astrologersRouter.get("/", async (_req, res) => {
   res.json({ astrologers: featured });
 });
 
+// Public: single astrologer profile.
+astrologersRouter.get("/:id", async (req, res) => {
+  const astrologer = await prisma.astrologer.findUnique({ where: { id: req.params.id } });
+  if (!astrologer || !astrologer.active) return res.status(404).json({ error: "Astrologer not found" });
+  res.json({ astrologer });
+});
+
 // ---- Admin management ----
 
 astrologersRouter.get("/admin/all", requireAdmin, async (_req, res) => {
@@ -62,6 +69,13 @@ const manualCreateSchema = z.object({
   rating: z.number().min(0).max(5).optional(),
   bio: z.string().min(1),
   photoUrl: z.string().url().optional(),
+  personality: z.string().min(1).optional(),
+  tone: z.string().min(1).optional(),
+  languages: z.array(z.string().min(1)).min(1).optional(),
+  greeting: z.string().min(1).optional(),
+  astrologyStyle: z.string().min(1).optional(),
+  systemInstructions: z.string().min(1).optional(),
+  priceRupeesPerMinute: z.number().int().min(1).max(1000).optional(),
 });
 
 astrologersRouter.post("/admin", requireAdmin, async (req, res) => {

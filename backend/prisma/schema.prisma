@@ -9,26 +9,28 @@ datasource db {
 }
 
 model User {
-  id             String             @id @default(uuid())
-  name           String
-  email          String             @unique
-  passwordHash   String
-  walletBalance  Int                @default(0) // stored in paise (1/100 currency unit)
-  createdAt      DateTime           @default(now())
-  predictions    Prediction[]
-  palmReadings   PalmReading[]
-  remedies       Remedy[]
-  chatMessages   ChatMessage[]
-  transactions   WalletTransaction[]
+  id            String              @id @default(uuid())
+  name          String
+  email         String              @unique
+  passwordHash  String
+  walletBalance Int                 @default(0) // stored in paise (1/100 currency unit)
+  createdAt     DateTime            @default(now())
+  predictions   Prediction[]
+  palmReadings  PalmReading[]
+  remedies      Remedy[]
+  chatMessages  ChatMessage[]
+  conversations Conversation[]
+  usageRecords  UsageRecord[]
+  transactions  WalletTransaction[]
 }
 
 model Admin {
-  id            String    @id @default(uuid())
-  username      String    @unique
-  passwordHash  String
-  createdAt     DateTime  @default(now())
-  broadcasts    BroadcastMessage[]
-  reviewedTx    WalletTransaction[]
+  id           String              @id @default(uuid())
+  username     String              @unique
+  passwordHash String
+  createdAt    DateTime            @default(now())
+  broadcasts   BroadcastMessage[]
+  reviewedTx   WalletTransaction[]
 }
 
 enum AstrologerSource {
@@ -37,27 +39,118 @@ enum AstrologerSource {
 }
 
 model Astrologer {
-  id               String            @id @default(uuid())
-  name             String
-  specialty        String
-  experienceYears  Int
-  rating           Float             @default(4.5)
-  bio              String
-  photoUrl         String
-  active           Boolean           @default(true)
-  source           AstrologerSource  @default(MANUAL)
-  createdAt        DateTime          @default(now())
-  retiredAt        DateTime?
+  id              String           @id @default(uuid())
+  name            String
+  specialty       String
+  experienceYears Int
+  rating          Float            @default(4.5)
+  bio             String
+  photoUrl        String
+  active          Boolean          @default(true)
+  source          AstrologerSource @default(MANUAL)
+  createdAt       DateTime         @default(now())
+  retiredAt       DateTime?
+
+  // AI persona - each astrologer is an independent AI character. See
+  // backend/src/services/astrologerPersona.service.ts for how these are
+  // turned into an isolated system prompt per conversation.
+  personality          String   @default("Warm, thoughtful, and attentive.")
+  tone                 String   @default("Conversational and reassuring")
+  languages            String[] @default(["English"])
+  greeting             String   @default("Welcome. Tell me what has been on your mind lately.")
+  astrologyStyle       String   @default("Vedic Astrology")
+  systemInstructions   String   @default("Give astrology-oriented guidance for entertainment purposes. Ask relevant follow-up questions. Do not claim certainty about the future.")
+  priceRupeesPerMinute Int      @default(15)
+  consultationCount    Int      @default(0)
+
+  conversations Conversation[]
+}
+
+// --- Per-astrologer consultations -----------------------------------------
+// A Conversation is scoped to exactly one (user, astrologer) pair and is the
+// unit of memory isolation: when building the AI request for a message, only
+// this conversation's own messages are sent, never another astrologer's.
+// Session limits (message/time caps) live directly on the conversation
+// rather than a separate table - a conversation already IS the session; a
+// parallel SESSIONS table with identical fields would just duplicate state.
+
+enum ConversationStatus {
+  ACTIVE
+  ENDED
+}
+
+model Conversation {
+  id           String             @id @default(uuid())
+  userId       String
+  user         User               @relation(fields: [userId], references: [id])
+  astrologerId String
+  astrologer   Astrologer         @relation(fields: [astrologerId], references: [id])
+  status       ConversationStatus @default(ACTIVE)
+  messageCount Int                @default(0)
+  tokenUsage   Int                @default(0)
+  startedAt    DateTime           @default(now())
+  endedAt      DateTime?
+  updatedAt    DateTime           @updatedAt
+
+  messages Message[]
+
+  @@index([userId])
+}
+
+enum MessageSender {
+  USER
+  ASTROLOGER
+}
+
+model Message {
+  id             String        @id @default(uuid())
+  conversationId String
+  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  sender         MessageSender
+  content        String
+  tokenUsage     Int?
+  createdAt      DateTime      @default(now())
+
+  @@index([conversationId])
+}
+
+model UsageRecord {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id])
+  conversationId     String?
+  tokens             Int
+  estimatedCostPaise Int
+  createdAt          DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// Singleton admin-configurable AI provider settings. The API key is
+// encrypted at rest (see backend/src/lib/secretBox.ts) using a server-only
+// ENCRYPTION_KEY env var - never returned to the client in plaintext.
+model AdminAISettings {
+  id                       Int      @id @default(1)
+  provider                 String   @default("anthropic") // anthropic | openai | compatible | local
+  apiUrl                   String?
+  model                    String   @default("claude-sonnet-4-5")
+  encryptedApiKey          String?
+  temperature              Float    @default(0.8)
+  maxResponseTokens        Int      @default(500)
+  maxMessagesPerSession    Int      @default(25)
+  maxSessionMinutes        Int      @default(30)
+  maxMessagesPerUserPerDay Int      @default(50)
+  updatedAt                DateTime @updatedAt
 }
 
 model AstrologerBotSettings {
-  id                    Int       @id @default(1)
-  enabled               Boolean   @default(false)
-  intervalMinutes       Int       @default(10)
-  maxActiveAstrologers  Int       @default(30)
-  dailyDisplayCount     Int       @default(100)
-  lastRunAt             DateTime?
-  updatedAt             DateTime  @updatedAt
+  id                   Int       @id @default(1)
+  enabled              Boolean   @default(false)
+  intervalMinutes      Int       @default(10)
+  maxActiveAstrologers Int       @default(30)
+  dailyDisplayCount    Int       @default(100)
+  lastRunAt            DateTime?
+  updatedAt            DateTime  @updatedAt
 }
 
 enum TxType {
@@ -72,18 +165,18 @@ enum TxStatus {
 }
 
 model WalletTransaction {
-  id               String     @id @default(uuid())
-  userId           String
-  user             User       @relation(fields: [userId], references: [id])
-  amount           Int // paise
-  type             TxType     @default(TOPUP_REQUEST)
-  status           TxStatus   @default(PENDING)
-  referenceCode    String     @unique
-  qrPayload        String
-  createdAt        DateTime   @default(now())
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  amount            Int // paise
+  type              TxType    @default(TOPUP_REQUEST)
+  status            TxStatus  @default(PENDING)
+  referenceCode     String    @unique
+  qrPayload         String
+  createdAt         DateTime  @default(now())
   reviewedByAdminId String?
-  reviewedByAdmin  Admin?     @relation(fields: [reviewedByAdminId], references: [id])
-  reviewedAt       DateTime?
+  reviewedByAdmin   Admin?    @relation(fields: [reviewedByAdminId], references: [id])
+  reviewedAt        DateTime?
 }
 
 enum PredictionCategory {
@@ -95,32 +188,32 @@ enum PredictionCategory {
 }
 
 model Prediction {
-  id           String              @id @default(uuid())
+  id           String             @id @default(uuid())
   userId       String?
-  user         User?               @relation(fields: [userId], references: [id])
+  user         User?              @relation(fields: [userId], references: [id])
   category     PredictionCategory
   zodiacSign   String
   inputDetails Json
   resultText   String
-  createdAt    DateTime            @default(now())
+  createdAt    DateTime           @default(now())
 }
 
 model PalmReading {
-  id          String    @id @default(uuid())
-  userId      String?
-  user        User?     @relation(fields: [userId], references: [id])
-  imageData   String    // base64 data URI of uploaded palm image
-  resultText  String
-  createdAt   DateTime  @default(now())
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  imageData  String // base64 data URI of uploaded palm image
+  resultText String
+  createdAt  DateTime @default(now())
 }
 
 model Remedy {
-  id          String    @id @default(uuid())
-  userId      String?
-  user        User?     @relation(fields: [userId], references: [id])
-  concern     String
-  resultText  String
-  createdAt   DateTime  @default(now())
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  concern    String
+  resultText String
+  createdAt  DateTime @default(now())
 }
 
 enum ChatRole {
@@ -129,12 +222,12 @@ enum ChatRole {
 }
 
 model ChatMessage {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   userId    String
-  user      User      @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
   role      ChatRole
   content   String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
 
 enum BotMode {
@@ -143,13 +236,13 @@ enum BotMode {
 }
 
 model BroadcastMessage {
-  id              String    @id @default(uuid())
-  rawAdminInput   String
-  formalizedText  String
-  mode            BotMode   @default(MANUAL)
+  id               String   @id @default(uuid())
+  rawAdminInput    String
+  formalizedText   String
+  mode             BotMode  @default(MANUAL)
   createdByAdminId String
-  createdByAdmin  Admin     @relation(fields: [createdByAdminId], references: [id])
-  createdAt       DateTime  @default(now())
+  createdByAdmin   Admin    @relation(fields: [createdByAdminId], references: [id])
+  createdAt        DateTime @default(now())
 }
 
 model BotSettings {
@@ -159,12 +252,12 @@ model BotSettings {
 }
 
 model BrandingSettings {
-  id            Int      @id @default(1)
-  appName       String   @default("Astro")
-  tagline       String   @default("Your stars, decoded.")
-  aboutText     String   @default("Astro brings you AI-guided astrology, palm reading, and expert astrologers in one place.")
-  primaryColor  String   @default("#FF7A1A")
-  secondaryColor String  @default("#C2410C")
-  logoUrl       String   @default("")
-  updatedAt     DateTime @updatedAt
+  id             Int      @id @default(1)
+  appName        String   @default("Astro")
+  tagline        String   @default("Your stars, decoded.")
+  aboutText      String   @default("Astro brings you AI-guided astrology, palm reading, and expert astrologers in one place.")
+  primaryColor   String   @default("#FF7A1A")
+  secondaryColor String   @default("#C2410C")
+  logoUrl        String   @default("")
+  updatedAt      DateTime @updatedAt
 }

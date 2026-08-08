@@ -1,4 +1,4 @@
-import { generateText } from "../lib/claude";
+import { generateAIResponse } from "../providers";
 
 const FORMALIZE_SYSTEM = `You are "AstroBot", the official voice of the Astro app. An admin gives you
 a message in casual, everyday language and your job is to rewrite it as a polished, warm, and
@@ -9,12 +9,11 @@ concise: 2-5 sentences unless the input clearly needs more. Output ONLY the rewr
 preamble, no quotes.`;
 
 export async function formalizeAdminMessage(rawInput: string) {
-  const result = await generateText({
+  return generateAIResponse({
     system: FORMALIZE_SYSTEM,
-    prompt: rawInput,
+    messages: [{ role: "user", content: rawInput }],
     maxTokens: 400,
   });
-  return result;
 }
 
 const AUTONOMOUS_SYSTEM = `You are "AstroBot", the official voice of the Astro app, currently
@@ -24,10 +23,9 @@ a tip tied to the current planetary mood, or an encouraging message. Keep it war
 and on-brand. 2-4 sentences. Output ONLY the message.`;
 
 export async function generateAutonomousMessage() {
-  const result = await generateText({
+  return generateAIResponse({
     system: AUTONOMOUS_SYSTEM,
-    prompt: "Write today's independent AstroBot community message.",
+    messages: [{ role: "user", content: "Write today's independent AstroBot community message." }],
     maxTokens: 300,
   });
-  return result;
 }

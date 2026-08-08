@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/admin/users", label: "Users" },
   { href: "/admin/astrologers", label: "Astrologers" },
   { href: "/admin/guided-predictions", label: "Guided Predictions" },
+  { href: "/admin/ai-settings", label: "AI Settings" },
   { href: "/admin/wallet-approvals", label: "Wallet Approvals" },
   { href: "/admin/bot-command", label: "Bot Command Center" },
   { href: "/admin/branding", label: "Branding" },
