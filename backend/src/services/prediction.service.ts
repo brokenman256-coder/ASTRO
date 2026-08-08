@@ -184,3 +184,78 @@ Give the tarot reading for these cards.`;
     maxTokens: 600,
   });
 }
+
+const KUNDLI_SYSTEM = `You are Astro's senior Vedic astrologer, expert in Kundli (birth chart)
+reading. Given a person's name, date of birth, and optionally their time and place of birth, write
+a confident, specific Kundli-style reading: their likely ascendant/moon-sign energy, key planetary
+themes (career, relationships, health, wealth), personality traits, and life direction. If time or
+place of birth is missing, work from date alone and don't dwell on the gap - just give the fullest
+reading you can. Write in warm, vivid, second-person language, organized in short paragraphs with
+clear headers (e.g. Personality, Career, Relationships, Life Path). Keep it to 280-380 words.`;
+
+export interface KundliInput {
+  name: string;
+  dob: string;
+  timeOfBirth?: string;
+  placeOfBirth?: string;
+}
+
+export async function generateKundliReading(input: KundliInput) {
+  const prompt = `Name: ${input.name}
+Date of birth: ${input.dob}
+${input.timeOfBirth ? `Time of birth: ${input.timeOfBirth}` : "Time of birth: not provided"}
+${input.placeOfBirth ? `Place of birth: ${input.placeOfBirth}` : "Place of birth: not provided"}
+
+Give this person's Kundli reading.`;
+
+  return generateAIResponse({
+    system: KUNDLI_SYSTEM,
+    messages: [{ role: "user", content: prompt }],
+    maxTokens: 900,
+  });
+}
+
+const KUNDLI_MATCH_SYSTEM = `You are Astro's senior Vedic astrologer, expert in Kundli matching
+(Guna Milan) for marriage/relationship compatibility. Given two people's names and dates of birth,
+plus their Guna Milan score out of 36 (already computed - use it as given, don't recalculate it),
+write a confident, specific compatibility reading: what the score means, their likely strengths as
+a pair, areas needing conscious effort, and overall guidance. Write in warm, balanced, second-person
+language addressed to both of them. Keep it to 250-350 words.`;
+
+export interface KundliMatchInput {
+  person1Name: string;
+  person1Dob: string;
+  person2Name: string;
+  person2Dob: string;
+  score: number;
+}
+
+export async function generateKundliMatch(input: KundliMatchInput) {
+  const prompt = `Person 1: ${input.person1Name}, born ${input.person1Dob}
+Person 2: ${input.person2Name}, born ${input.person2Dob}
+Guna Milan score: ${input.score} / 36
+
+Give their compatibility reading.`;
+
+  return generateAIResponse({
+    system: KUNDLI_MATCH_SYSTEM,
+    messages: [{ role: "user", content: prompt }],
+    maxTokens: 700,
+  });
+}
+
+const PANCHANG_SYSTEM = `You are Astro's Vedic panchang expert. Write today's daily panchang - the
+traditional Hindu almanac panel - covering: Tithi (lunar day), Nakshatra (lunar mansion), Yoga,
+Karana, and a Shubh Muhurat (auspicious time window) for the day, plus one Rahu Kaal (inauspicious
+window) to be mindful of. Present it as short labeled lines, not paragraphs, followed by one brief
+2-3 sentence note on the day's overall energy. Since you don't have a live ephemeris, choose
+plausible, traditionally-styled values confidently - never mention that you're estimating.`;
+
+export async function generatePanchang(date: string) {
+  const prompt = `Generate today's panchang for ${date}.`;
+  return generateAIResponse({
+    system: PANCHANG_SYSTEM,
+    messages: [{ role: "user", content: prompt }],
+    maxTokens: 400,
+  });
+}

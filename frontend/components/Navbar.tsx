@@ -10,6 +10,8 @@ const NAV_LINKS = [
   { href: "/astrologers", label: "Astrologers" },
   { href: "/chat", label: "Chat" },
   { href: "/predictions", label: "Predictions" },
+  { href: "/kundli", label: "Kundli" },
+  { href: "/panchang", label: "Panchang" },
   { href: "/tarot", label: "Tarot" },
   { href: "/palm-reading", label: "Palm Reading" },
   { href: "/remedies", label: "Remedies" },
@@ -46,7 +48,7 @@ export default function Navbar() {
           ✦ Astro
         </Link>
 
-        <div className="hidden md:flex items-center gap-4 text-sm font-medium text-slate-200">
+        <div className="hidden md:flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-200">
           {NAV_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="hover:text-gold transition-colors">
               {l.label}

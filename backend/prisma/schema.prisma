@@ -22,6 +22,8 @@ model User {
   palmReadings  PalmReading[]
   remedies      Remedy[]
   tarotReadings TarotReading[]
+  kundliReadings KundliReading[]
+  kundliMatches  KundliMatch[]
   chatMessages  ChatMessage[]
   conversations Conversation[]
   usageRecords  UsageRecord[]
@@ -292,6 +294,42 @@ model TarotReading {
   createdAt  DateTime @default(now())
 }
 
+model KundliReading {
+  id             String   @id @default(uuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  name           String
+  dob            DateTime
+  timeOfBirth    String? // free-text, e.g. "14:35" - birth time isn't always known precisely
+  placeOfBirth   String?
+  resultText     String
+  createdAt      DateTime @default(now())
+}
+
+model KundliMatch {
+  id             String   @id @default(uuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  person1Name    String
+  person1Dob     DateTime
+  person2Name    String
+  person2Dob     DateTime
+  score          Int // out of 36, Guna Milan style
+  resultText     String
+  createdAt      DateTime @default(now())
+}
+
+// One row per calendar date - the panchang itself is the same for everyone
+// on a given day, so it's generated once and cached, not per-user. Each
+// user's personal luck score is computed on the fly from (userId, date)
+// rather than stored, since it's a pure deterministic function.
+model DailyPanchang {
+  id         String   @id @default(uuid())
+  date       String   @unique // UTC YYYY-MM-DD
+  resultText String
+  createdAt  DateTime @default(now())
+}
+
 enum ChatRole {
   USER
   BOT
@@ -336,4 +374,25 @@ model BrandingSettings {
   secondaryColor String   @default("#C2410C")
   logoUrl        String   @default("")
   updatedAt      DateTime @updatedAt
+}
+
+// In-app promotional banners, autonomously written by the promo bot (never
+// real external ad spend - see promoBot.service.ts). Distinct from
+// BroadcastMessage, which carries general community announcements, not
+// promotional pushes.
+model PromoBanner {
+  id        String   @id @default(uuid())
+  text      String
+  ctaLabel  String
+  ctaHref   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model PromoBotSettings {
+  id              Int       @id @default(1)
+  enabled         Boolean   @default(true)
+  intervalMinutes Int       @default(120)
+  lastRunAt       DateTime?
+  updatedAt       DateTime  @updatedAt
 }

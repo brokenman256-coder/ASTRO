@@ -13,6 +13,8 @@ const LINKS = [
   { href: "/admin/live-chats", label: "Live Chats" },
   { href: "/admin/test-chat", label: "Test Chat" },
   { href: "/admin/ai-settings", label: "AI Settings" },
+  { href: "/admin/promos", label: "Promo Banners" },
+  { href: "/admin/media", label: "Media Library" },
   { href: "/admin/wallet-approvals", label: "Payments" },
   { href: "/admin/password-resets", label: "Password Resets" },
   { href: "/admin/bot-command", label: "Bot Command Center" },

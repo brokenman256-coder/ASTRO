@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import PromoBanner from "@/components/PromoBanner";
 
 const FOOTER_LINKS = [
   { href: "/astrologers", label: "Astrologers" },
@@ -29,6 +30,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
   return (
     <>
       <Navbar />
+      <PromoBanner />
       <main className="max-w-6xl mx-auto px-4 py-10 pb-24 md:pb-10">{children}</main>
       <BottomNav />
       <footer

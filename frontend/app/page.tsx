@@ -195,8 +195,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Tarot + Palm Reading + Remedies teasers */}
-      <section className="grid md:grid-cols-3 gap-6">
+      {/* Reading tools teasers */}
+      <section className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <Link href="/kundli" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
+          <h3 className="text-lg font-semibold text-slate-800">Kundli</h3>
+          <p className="text-sm text-slate-500 mt-2">Get your Vedic birth chart reading, or check compatibility with someone through Kundli matching.</p>
+          <span className="inline-block mt-4 text-sm text-brand-dark font-medium">Generate my Kundli →</span>
+        </Link>
+        <Link href="/panchang" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
+          <h3 className="text-lg font-semibold text-slate-800">Panchang & Luck Meter</h3>
+          <p className="text-sm text-slate-500 mt-2">Today&apos;s Vedic almanac plus your own personal luck score for the day.</p>
+          <span className="inline-block mt-4 text-sm text-brand-dark font-medium">Check today →</span>
+        </Link>
         <Link href="/tarot" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
           <h3 className="text-lg font-semibold text-slate-800">Tarot Reading</h3>
           <p className="text-sm text-slate-500 mt-2">Draw your cards and get a detailed AI-guided tarot reading for whatever&apos;s on your mind.</p>

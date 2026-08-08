@@ -1,6 +1,7 @@
 import type { Handler } from "@netlify/functions";
 import { env } from "../../src/lib/env";
 import { runIfDue } from "../../src/lib/astrologerScheduler";
+import { runPromoBotIfDue } from "../../src/services/promoBot.service";
 
 /**
  * Meant to be hit by an external scheduler (e.g. a free cron-job.org ping)
@@ -19,6 +20,7 @@ export const handler: Handler = async (event) => {
 
   try {
     await runIfDue();
+    await runPromoBotIfDue();
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };
   } catch (err) {
     console.error("scheduler-tick failed:", err);
