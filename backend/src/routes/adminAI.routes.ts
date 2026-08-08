@@ -34,6 +34,21 @@ function toPublicSettings(settings: {
   };
 }
 
+// Public, read-only: lets the chat UI show an accurate live countdown and
+// "N messages left" without exposing anything sensitive (provider, model,
+// keys, temperature stay admin-only).
+adminAIRouter.get("/session-limits", async (_req, res) => {
+  const settings = await prisma.adminAISettings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1 },
+  });
+  res.json({
+    maxSessionMinutes: settings.maxSessionMinutes,
+    maxMessagesPerSession: settings.maxMessagesPerSession,
+  });
+});
+
 adminAIRouter.get("/", requireAdmin, async (_req, res) => {
   const settings = await prisma.adminAISettings.upsert({
     where: { id: 1 },

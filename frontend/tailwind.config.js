@@ -13,6 +13,10 @@ module.exports = {
         gold: "#F5B942",
         cream: "#FFF7ED",
         navy: "#1E2340",
+        maroon: {
+          DEFAULT: "#7A1230",
+          dark: "#4A0A1C",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],

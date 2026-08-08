@@ -1,10 +1,62 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { optionalUser, requireAdmin, AuthedRequest } from "../middleware/auth";
+import { optionalUser, requireUser, requireAdmin, AuthedRequest } from "../middleware/auth";
 import { generatePrediction, generateGuidedPrediction } from "../services/prediction.service";
+import { zodiacFromDate, RUDRAKSHA_BY_ZODIAC } from "../lib/zodiac";
 
 export const predictionsRouter = Router();
+
+// Personalized daily horoscope + rudraksha recommendation, computed from
+// the user's own stored date of birth - different for every user, cached
+// for the day so it isn't regenerated (and re-charged in AI usage) on
+// every page view.
+predictionsRouter.get("/personal-daily", requireUser, async (req: AuthedRequest, res) => {
+  const user = await prisma.user.findUnique({ where: { id: req.user!.sub } });
+  if (!user) return res.status(404).json({ error: "User not found" });
+  if (!user.dob) {
+    return res.status(400).json({ error: "Add your date of birth in your profile to see your personal horoscope." });
+  }
+
+  const zodiac = zodiacFromDate(new Date(user.dob));
+  const rudraksha = RUDRAKSHA_BY_ZODIAC[zodiac.name];
+
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const cached = await prisma.prediction.findFirst({
+    where: {
+      userId: user.id,
+      category: "DAILY",
+      zodiacSign: zodiac.name,
+      createdAt: { gte: startOfDay },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (cached) {
+    return res.json({ zodiacSign: zodiac.name, symbol: zodiac.symbol, horoscope: cached.resultText, rudraksha, aiConfigured: true });
+  }
+
+  const { text, configured } = await generatePrediction({
+    category: "DAILY",
+    zodiacSign: zodiac.name,
+    name: user.name,
+    dob: user.dob.toISOString().slice(0, 10),
+    period: "daily",
+  });
+
+  await prisma.prediction.create({
+    data: {
+      userId: user.id,
+      category: "DAILY",
+      zodiacSign: zodiac.name,
+      inputDetails: { personal: true, period: "daily" },
+      resultText: text,
+    },
+  });
+
+  res.json({ zodiacSign: zodiac.name, symbol: zodiac.symbol, horoscope: text, rudraksha, aiConfigured: configured });
+});
 
 const requestSchema = z.object({
   category: z.enum(["DAILY", "LOVE", "CAREER", "HEALTH", "GENERAL"]),

@@ -74,17 +74,29 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+const WOMEN = FIRST_NAMES.filter((f) => f.gender === "woman");
+const MEN = FIRST_NAMES.filter((f) => f.gender === "man");
+
+// Roster skews female and young (20s) by design request - most profiles
+// are women in their early-to-late 20s, with a smaller mix of other ages
+// and men for variety.
+function pickFirstName(): { name: string; gender: "man" | "woman" } {
+  return Math.random() < 0.7 ? pick(WOMEN) : pick(MEN);
+}
+
 export function generateAstrologerProfile() {
-  const first = pick(FIRST_NAMES);
+  const first = pickFirstName();
   const last = pick(LAST_NAMES);
   const specialty = pick(SPECIALTIES);
-  const experienceYears = 3 + Math.floor(Math.random() * 20);
+  // Skewed young: most profiles get a short apprenticeship-style career
+  // (1-10 years) so the age formula below lands mostly in the 20s.
+  const experienceYears = 1 + Math.floor(Math.random() * 10);
   const rating = Math.round((3.8 + Math.random() * 1.2) * 10) / 10;
   const bioTemplate = pick(BIO_TEMPLATES)
     .replace("{years}", String(experienceYears))
     .replace("{specialty}", specialty);
   const name = `${first.name} ${last}`;
-  const age = 27 + experienceYears;
+  const age = 20 + experienceYears + Math.floor(Math.random() * 3);
   return {
     name,
     gender: first.gender,

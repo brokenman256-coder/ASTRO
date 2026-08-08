@@ -36,10 +36,12 @@ export default function WalletPage() {
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [minRechargePaise, setMinRechargePaise] = useState(10000);
   const [amount, setAmount] = useState("500");
+  const [selectedSchemeId, setSelectedSchemeId] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     const t = getUserToken();
@@ -91,84 +93,80 @@ export default function WalletPage() {
   if (!token) return null;
 
   const minRechargeRupees = minRechargePaise / 100;
-  const quickAmounts = Array.from(new Set([minRechargeRupees, minRechargeRupees * 2, minRechargeRupees * 5]));
   const isLowBalance = balance !== null && balance < LOW_BALANCE_THRESHOLD_PAISE;
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold">Wallet</h1>
-        <p className="text-slate-500 mt-1">
-          Current balance: <span className="text-slate-800 font-medium">{balance !== null ? rupees(balance) : "..."}</span>
+      {/* Balance - the one number that matters, up front */}
+      <div className="card-royal p-8 text-center">
+        <p className="text-xs uppercase tracking-widest text-slate-400">Wallet Balance</p>
+        <p className="font-display text-5xl font-bold text-navy mt-2">
+          {balance !== null ? rupees(balance) : "..."}
         </p>
+        {isLowBalance && (
+          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-full inline-block px-4 py-1.5 mt-4">
+            Running low - recharge below so a consultation is never interrupted.
+          </p>
+        )}
       </div>
 
-      {isLowBalance && (
-        <div className="card p-4 border-amber-300 bg-amber-50 flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-sm text-amber-800">
-            Your balance is running low - top up now so a consultation is never interrupted.
-          </p>
-          <a href="#recharge" className="btn-primary !py-1.5 !px-3 text-xs shrink-0">
-            Recharge now
-          </a>
-        </div>
-      )}
-
+      {/* Offers - the primary way to pick an amount */}
       {schemes.length > 0 && (
         <section>
-          <h2 className="text-sm uppercase tracking-widest text-brand font-semibold mb-3">Recharge offers</h2>
+          <h2 className="font-display text-lg font-bold text-navy text-center mb-1">Recharge Offers</h2>
+          <p className="text-xs text-slate-500 text-center mb-4">Pick an offer, or enter your own amount below</p>
           <div className="grid sm:grid-cols-3 gap-3">
-            {schemes.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setAmount((s.minAmountPaise / 100).toFixed(0))}
-                className="card p-4 text-left hover:border-brand/40 transition-all"
-              >
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">{s.label}</p>
-                <p className="text-lg font-bold text-slate-800 mt-1">+{s.bonusPercent}% bonus</p>
-                <p className="text-xs text-slate-500 mt-1">On recharges of ₹{(s.minAmountPaise / 100).toFixed(0)} or more</p>
-              </button>
-            ))}
+            {schemes.map((s) => {
+              const selected = selectedSchemeId === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedSchemeId(s.id);
+                    setAmount((s.minAmountPaise / 100).toFixed(0));
+                  }}
+                  className={
+                    "card-royal p-4 text-left transition-all " +
+                    (selected ? "ring-2 ring-maroon" : "hover:-translate-y-0.5")
+                  }
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-maroon">{s.label}</p>
+                  <p className="text-gold-foil text-2xl font-display font-bold mt-1">+{s.bonusPercent}%</p>
+                  <p className="text-xs text-slate-500 mt-1">bonus on ₹{(s.minAmountPaise / 100).toFixed(0)}+</p>
+                </button>
+              );
+            })}
           </div>
         </section>
       )}
 
+      {/* Recharge form - simple, single amount field */}
       <form id="recharge" onSubmit={handleTopup} className="card p-6 space-y-4 scroll-mt-20">
-        <h2 className="font-medium">Add money</h2>
-        <p className="text-xs text-slate-500">Minimum recharge: ₹{minRechargeRupees.toFixed(0)}</p>
-        <div className="flex flex-wrap gap-2">
-          {quickAmounts.map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setAmount(r.toFixed(0))}
-              className={
-                "text-xs px-3 py-1.5 rounded-full border " +
-                (Number(amount) === r
-                  ? "bg-brand text-white border-brand"
-                  : "bg-orange-50 text-slate-600 border-orange-200 hover:bg-orange-100")
-              }
-            >
-              ₹{r.toFixed(0)}
-            </button>
-          ))}
+        <div className="flex items-center justify-between">
+          <h2 className="font-medium">Recharge amount</h2>
+          <p className="text-xs text-slate-400">Min ₹{minRechargeRupees.toFixed(0)}</p>
         </div>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="text-xs text-slate-500 block mb-1">Amount (₹)</label>
-            <input
-              className="input"
-              type="number"
-              min={minRechargeRupees}
-              step="1"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
+              <input
+                className="input !pl-7 text-lg font-semibold"
+                type="number"
+                min={minRechargeRupees}
+                step="1"
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setSelectedSchemeId(null);
+                }}
+                required
+              />
+            </div>
           </div>
           <button className="btn-primary" disabled={loading}>
-            {loading ? "Generating..." : "Generate QR"}
+            {loading ? "Generating..." : "Get QR"}
           </button>
         </div>
         {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -187,37 +185,46 @@ export default function WalletPage() {
         </div>
       )}
 
+      {/* History - collapsed by default to keep the page focused */}
       <div className="card p-6">
-        <h2 className="font-medium mb-4">Transaction history</h2>
-        {transactions.length === 0 && <p className="text-sm text-slate-500">No transactions yet.</p>}
-        <div className="space-y-2">
-          {transactions.map((t) => (
-            <div key={t.id} className="flex justify-between items-center text-sm border-b border-orange-100 py-2">
-              <div>
-                <p className="text-slate-700">
-                  {rupees(t.amount)}
-                  {t.bonusPaise > 0 && <span className="text-green-600"> + {rupees(t.bonusPaise)} bonus</span>}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {t.referenceCode} · {new Date(t.createdAt).toLocaleDateString()}
-                  {t.note ? ` · ${t.note}` : ""}
-                </p>
+        <button
+          className="w-full flex items-center justify-between"
+          onClick={() => setShowHistory((v) => !v)}
+        >
+          <h2 className="font-medium">Transaction history</h2>
+          <span className="text-brand-dark text-sm">{showHistory ? "Hide −" : "Show +"}</span>
+        </button>
+        {showHistory && (
+          <div className="space-y-2 mt-4">
+            {transactions.length === 0 && <p className="text-sm text-slate-500">No transactions yet.</p>}
+            {transactions.map((t) => (
+              <div key={t.id} className="flex justify-between items-center text-sm border-b border-orange-100 py-2">
+                <div>
+                  <p className="text-slate-700">
+                    {rupees(t.amount)}
+                    {t.bonusPaise > 0 && <span className="text-green-600"> + {rupees(t.bonusPaise)} bonus</span>}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {t.referenceCode} · {new Date(t.createdAt).toLocaleDateString()}
+                    {t.note ? ` · ${t.note}` : ""}
+                  </p>
+                </div>
+                <span
+                  className={
+                    "text-xs px-2 py-1 rounded-full " +
+                    (t.status === "APPROVED"
+                      ? "bg-green-500/20 text-green-600"
+                      : t.status === "REJECTED"
+                      ? "bg-red-500/20 text-red-600"
+                      : "bg-amber-500/20 text-amber-600")
+                  }
+                >
+                  {t.status}
+                </span>
               </div>
-              <span
-                className={
-                  "text-xs px-2 py-1 rounded-full " +
-                  (t.status === "APPROVED"
-                    ? "bg-green-500/20 text-green-600"
-                    : t.status === "REJECTED"
-                    ? "bg-red-500/20 text-red-600"
-                    : "bg-amber-500/20 text-amber-600")
-                }
-              >
-                {t.status}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

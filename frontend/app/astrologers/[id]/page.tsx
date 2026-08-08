@@ -79,9 +79,6 @@ export default function AstrologerProfilePage() {
         />
         <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
           <h1 className="text-2xl font-bold text-slate-800">{astrologer.name}</h1>
-          <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-dark bg-orange-50 border border-orange-200 rounded-full px-1.5 py-0.5">
-            AI Astrologer
-          </span>
         </div>
         <span className="inline-block text-sm font-medium text-brand-dark bg-orange-50 border border-orange-200 rounded-full px-3 py-1 mt-2">
           {astrologer.specialty}

@@ -172,9 +172,6 @@ function AstrologerCard({ astrologer: a }: { astrologer: Astrologer }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-slate-800 truncate">{a.name}</h3>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-dark bg-orange-50 border border-orange-200 rounded-full px-1.5 py-0.5">
-              AI Astrologer
-            </span>
           </div>
           <span className="inline-block text-xs font-medium text-brand-dark bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5 mt-1">
             {a.specialty}

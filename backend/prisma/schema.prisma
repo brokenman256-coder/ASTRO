@@ -166,7 +166,7 @@ model AdminAISettings {
   temperature              Float    @default(0.8)
   maxResponseTokens        Int      @default(500)
   maxMessagesPerSession    Int      @default(25)
-  maxSessionMinutes        Int      @default(30)
+  maxSessionMinutes        Int      @default(5)
   maxMessagesPerUserPerDay Int      @default(50)
   updatedAt                DateTime @updatedAt
 }

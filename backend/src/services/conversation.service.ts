@@ -161,13 +161,15 @@ export async function sendMessage(conversationId: string, userId: string, conten
 
   // Metered billing: the conversation was prepaid for its minimum block at
   // start; once elapsed time crosses into a new, not-yet-billed minute, the
-  // wallet is charged for those additional minutes before the astrologer
-  // responds. If the balance can't cover it, the session ends immediately -
-  // the astrologer never generates a reply the user hasn't paid for.
+  // wallet owes for those additional minutes. Only the affordability check
+  // happens here - the actual debit happens after the astrologer responds
+  // successfully, so a failed AI call (provider outage, rate limit, etc.)
+  // never charges the user for a reply they didn't get.
   const elapsedMinutes = Math.ceil((Date.now() - conversation.startedAt.getTime()) / 60000);
   const newMinutes = elapsedMinutes - conversation.billedMinutes;
+  let additionalCostPaise = 0;
   if (newMinutes > 0) {
-    const additionalCostPaise = conversation.astrologer.priceRupeesPerMinute * newMinutes * 100;
+    additionalCostPaise = conversation.astrologer.priceRupeesPerMinute * newMinutes * 100;
     const payingUser = await prisma.user.findUnique({ where: { id: userId } });
     if (!payingUser || payingUser.walletBalance < additionalCostPaise) {
       await prisma.conversation.update({
@@ -176,7 +178,28 @@ export async function sendMessage(conversationId: string, userId: string, conten
       });
       throw new SessionEndedError("Your wallet balance is too low to continue this consultation.");
     }
+  }
 
+  const history = await prisma.message.findMany({
+    where: { conversationId },
+    orderBy: { createdAt: "desc" },
+    take: CONTEXT_WINDOW,
+  });
+  const turns = history
+    .reverse()
+    .map((m) => ({
+      role: m.sender === "USER" ? ("user" as const) : ("assistant" as const),
+      content: m.content,
+    }));
+  turns.push({ role: "user", content });
+
+  const system = buildAstrologerSystemPrompt(conversation.astrologer);
+  const { text, tokensUsed, configured } = await generateAIResponse({ system, messages: turns });
+
+  // Only charge for the extra minute(s) once the astrologer actually
+  // responded - never for a call that threw, and never when the AI isn't
+  // configured yet (the user got a placeholder, not a real consultation).
+  if (additionalCostPaise > 0 && configured) {
     await prisma.$transaction([
       prisma.user.update({
         where: { id: userId },
@@ -201,22 +224,6 @@ export async function sendMessage(conversationId: string, userId: string, conten
       },
     });
   }
-
-  const history = await prisma.message.findMany({
-    where: { conversationId },
-    orderBy: { createdAt: "desc" },
-    take: CONTEXT_WINDOW,
-  });
-  const turns = history
-    .reverse()
-    .map((m) => ({
-      role: m.sender === "USER" ? ("user" as const) : ("assistant" as const),
-      content: m.content,
-    }));
-  turns.push({ role: "user", content });
-
-  const system = buildAstrologerSystemPrompt(conversation.astrologer);
-  const { text, tokensUsed, configured } = await generateAIResponse({ system, messages: turns });
 
   const [userMessage, astrologerMessage] = await prisma.$transaction([
     prisma.message.create({

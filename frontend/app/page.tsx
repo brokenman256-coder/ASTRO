@@ -28,6 +28,7 @@ interface Astrologer {
   photoUrl: string;
   languages: string[];
   priceRupeesPerMinute: number;
+  consultationCount: number;
 }
 
 const CATEGORIES = [
@@ -64,14 +65,17 @@ const FAQS = [
 export default function HomePage() {
   const [branding, setBranding] = useState<Branding | null>(null);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
-  const [featured, setFeatured] = useState<Astrologer[]>([]);
+  const [allAstrologers, setAllAstrologers] = useState<Astrologer[]>([]);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     apiGet("/branding").then((d) => setBranding(d.branding)).catch(() => {});
     apiGet("/bot/broadcasts").then((d) => setBroadcasts(d.broadcasts)).catch(() => {});
-    apiGet("/astrologers").then((d) => setFeatured(d.astrologers.slice(0, 3))).catch(() => {});
+    apiGet("/astrologers").then((d) => setAllAstrologers(d.astrologers)).catch(() => {});
   }, []);
+
+  const featured = allAstrologers.slice(0, 3);
+  const totalConsultations = allAstrologers.reduce((sum, a) => sum + (a.consultationCount ?? 0), 0);
 
   return (
     <div className="space-y-20">
@@ -97,6 +101,14 @@ export default function HomePage() {
         </div>
       </section>
 
+      {allAstrologers.length > 0 && (
+        <section className="flex flex-wrap justify-center gap-x-10 gap-y-4 -mt-10">
+          <LiveStat value={allAstrologers.length.toString()} label="Astrologers Online Now" pulse />
+          <LiveStat value={totalConsultations.toLocaleString()} label="Consultations So Far" />
+          <LiveStat value="24/7" label="Always Available" />
+        </section>
+      )}
+
       {broadcasts.length > 0 && (
         <section className="card p-6 max-w-2xl mx-auto">
           <h2 className="text-sm uppercase tracking-widest text-brand font-semibold mb-3">AstroBot says</h2>
@@ -113,7 +125,7 @@ export default function HomePage() {
         <SectionHeader title="Featured Astrologers" subtitle="A few of today's top-rated experts" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {featured.map((a) => (
-            <Link key={a.id} href={`/astrologers/${a.id}`} className="card p-5 flex flex-col hover:shadow-md hover:border-brand/40 transition-all">
+            <Link key={a.id} href={`/astrologers/${a.id}`} className="card-royal card-interactive p-5 flex flex-col">
               <div className="flex items-start gap-4">
                 <div className="relative shrink-0">
                   <Image src={a.photoUrl} alt={a.name} width={56} height={56} className="rounded-full bg-orange-50 object-cover w-14 h-14" unoptimized />
@@ -126,7 +138,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex items-center justify-between mt-4">
-                <span className="text-sm font-semibold text-slate-700">₹{a.priceRupeesPerMinute}/min</span>
+                <span className="text-sm font-semibold text-gold-foil">₹{a.priceRupeesPerMinute}/min</span>
                 <span className="btn-primary !py-1.5 !px-3 text-xs">Chat Now</span>
               </div>
             </Link>
@@ -247,6 +259,18 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle: string })
     <div className="text-center">
       <h2 className="font-display text-2xl md:text-3xl font-bold text-navy">{title}</h2>
       {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
+    </div>
+  );
+}
+
+function LiveStat({ value, label, pulse }: { value: string; label: string; pulse?: boolean }) {
+  return (
+    <div className="flex items-center gap-2">
+      {pulse && <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)] animate-pulse-slow" />}
+      <div className="text-left">
+        <p className="font-display text-lg font-bold text-maroon leading-none">{value}</p>
+        <p className="text-[11px] text-slate-500 uppercase tracking-wide mt-0.5">{label}</p>
+      </div>
     </div>
   );
 }

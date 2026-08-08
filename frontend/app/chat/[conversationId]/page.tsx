@@ -21,6 +21,12 @@ interface ConversationMessage {
   createdAt: string;
 }
 
+function formatClock(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export default function ConsultationChatPage() {
   const params = useParams<{ conversationId: string }>();
   const router = useRouter();
@@ -37,6 +43,8 @@ export default function ConsultationChatPage() {
   const [aiConfigured, setAiConfigured] = useState(true);
   const [startingNew, setStartingNew] = useState(false);
   const [endedReason, setEndedReason] = useState<string | null>(null);
+  const [deadline, setDeadline] = useState<number | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,15 +54,35 @@ export default function ConsultationChatPage() {
       return;
     }
     setToken(t);
-    apiGet(`/conversations/${params.conversationId}`, t)
-      .then((d) => {
+    Promise.all([
+      apiGet(`/conversations/${params.conversationId}`, t),
+      apiGet("/admin/ai-settings/session-limits"),
+    ])
+      .then(([d, limits]) => {
         setAstrologer(d.conversation.astrologer);
         setStatus(d.conversation.status);
         setMessages(d.messages);
+        const startedAtMs = new Date(d.conversation.startedAt).getTime();
+        setDeadline(startedAtMs + limits.maxSessionMinutes * 60 * 1000);
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [params.conversationId, router]);
+
+  useEffect(() => {
+    if (!deadline || status !== "ACTIVE") return;
+    const tick = () => {
+      const remaining = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+      setSecondsLeft(remaining);
+      if (remaining <= 0) {
+        setStatus("ENDED");
+        setEndedReason("Your consultation session has ended.");
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [deadline, status]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -148,9 +176,6 @@ export default function ConsultationChatPage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold text-slate-800 truncate">{astrologer.name}</p>
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-dark bg-orange-50 border border-orange-200 rounded-full px-1.5 py-0.5">
-              AI Astrologer
-            </span>
           </div>
           <p className="text-xs text-slate-500">
             {astrologer.specialty} ·{" "}
@@ -161,6 +186,17 @@ export default function ConsultationChatPage() {
             )}
           </p>
         </div>
+        {status === "ACTIVE" && secondsLeft !== null && (
+          <div
+            className={
+              "text-xs font-mono font-semibold px-2 py-1 rounded-lg shrink-0 " +
+              (secondsLeft <= 60 ? "text-red-600 bg-red-50 animate-pulse" : "text-brand-dark bg-orange-50")
+            }
+            title="Time left in this consultation"
+          >
+            {formatClock(secondsLeft)}
+          </div>
+        )}
         {status === "ACTIVE" && (
           <button className="text-xs text-slate-500 hover:text-red-600" onClick={handleEndConsultation}>
             End Consultation

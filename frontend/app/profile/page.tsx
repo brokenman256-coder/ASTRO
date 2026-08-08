@@ -23,11 +23,21 @@ interface FullUser {
   dob: string | null;
 }
 
+interface PersonalDaily {
+  zodiacSign: string;
+  symbol: string;
+  horoscope: string;
+  aiConfigured: boolean;
+  rudraksha: { mukhi: string; title: string; benefit: string };
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<FullUser | null>(null);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [daily, setDaily] = useState<PersonalDaily | null>(null);
+  const [dailyError, setDailyError] = useState("");
 
   useEffect(() => {
     apiGet("/auth/me")
@@ -42,6 +52,9 @@ export default function ProfilePage() {
       .then((d) => setConversations(d.conversations))
       .catch(() => {})
       .finally(() => setLoading(false));
+    apiGet("/predictions/personal-daily")
+      .then((d) => setDaily(d))
+      .catch((err) => setDailyError(err instanceof Error ? err.message : ""));
   }, [router]);
 
   async function handleLogout() {
@@ -77,6 +90,34 @@ export default function ProfilePage() {
           <p className="text-sm font-medium text-slate-700">Browse Astrologers</p>
         </Link>
       </div>
+
+      {daily && (
+        <div className="card-royal p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-3xl">{daily.symbol}</span>
+            <div>
+              <p className="font-display font-bold text-navy">Your Daily Horoscope</p>
+              <p className="text-xs text-slate-500">{daily.zodiacSign} · personalized to your date of birth</p>
+            </div>
+          </div>
+          {!daily.aiConfigured && (
+            <p className="text-amber-600 text-xs mb-2">
+              Note: this is a placeholder response - the admin hasn&apos;t connected the AI engine yet.
+            </p>
+          )}
+          <p className="text-sm text-slate-700 whitespace-pre-line">{daily.horoscope}</p>
+          <div className="border-t border-orange-100 mt-4 pt-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-maroon">Your Rudraksha</p>
+            <p className="text-gold-foil font-display text-lg font-bold mt-1">{daily.rudraksha.mukhi}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{daily.rudraksha.title} - {daily.rudraksha.benefit}.</p>
+          </div>
+        </div>
+      )}
+      {dailyError && !daily && (
+        <div className="card p-4 text-center">
+          <p className="text-sm text-slate-500">{dailyError}</p>
+        </div>
+      )}
 
       <div>
         <h2 className="text-lg font-semibold text-slate-800 mb-4">Consultation history</h2>
