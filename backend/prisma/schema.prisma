@@ -163,8 +163,8 @@ model BrandingSettings {
   appName       String   @default("Astro")
   tagline       String   @default("Your stars, decoded.")
   aboutText     String   @default("Astro brings you AI-guided astrology, palm reading, and expert astrologers in one place.")
-  primaryColor  String   @default("#6D28D9")
-  secondaryColor String  @default("#F59E0B")
+  primaryColor  String   @default("#FF7A1A")
+  secondaryColor String  @default("#C2410C")
   logoUrl       String   @default("")
   updatedAt     DateTime @updatedAt
 }

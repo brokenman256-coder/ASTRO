@@ -29,12 +29,12 @@ export default function AdminUsersPage() {
     <AdminGuard>
       <AdminNav />
       <h1 className="text-2xl font-semibold mb-2">Users</h1>
-      <p className="text-slate-400 text-sm mb-6">
+      <p className="text-slate-500 text-sm mb-6">
         Every user's full activity - predictions, palm reading photos, remedies, and wallet
         transactions - is available from here.
       </p>
 
-      {loading && <p className="text-slate-400">Loading...</p>}
+      {loading && <p className="text-slate-500">Loading...</p>}
       {!loading && users.length === 0 && <p className="text-slate-500 text-sm">No users yet.</p>}
 
       <div className="space-y-2">
@@ -46,10 +46,10 @@ export default function AdminUsersPage() {
           >
             <div>
               <p className="font-medium">{u.name}</p>
-              <p className="text-xs text-slate-400">{u.email}</p>
+              <p className="text-xs text-slate-500">{u.email}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-slate-300">₹{(u.walletBalance / 100).toFixed(2)}</p>
+              <p className="text-sm text-slate-600">₹{(u.walletBalance / 100).toFixed(2)}</p>
               <p className="text-xs text-slate-500">joined {new Date(u.createdAt).toLocaleDateString()}</p>
             </div>
           </Link>

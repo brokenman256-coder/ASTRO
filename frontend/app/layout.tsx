@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Navbar />
         <main className="max-w-6xl mx-auto px-4 py-10">{children}</main>
-        <footer className="border-t border-white/10 mt-20 py-8 text-center text-xs text-slate-500">
+        <footer className="border-t border-orange-100 mt-20 py-8 text-center text-xs text-slate-500">
           © {new Date().getFullYear()} Astro. All rights reserved.
         </footer>
       </body>

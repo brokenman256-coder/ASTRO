@@ -55,10 +55,10 @@ export default function InfoPage() {
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-semibold">{branding?.appName ?? "Astro"}</h1>
-        <p className="text-slate-400 mt-2">{branding?.aboutText}</p>
+        <p className="text-slate-500 mt-2">{branding?.aboutText}</p>
       </div>
 
-      <div className="card p-6 space-y-3 text-sm text-slate-400">
+      <div className="card p-6 space-y-3 text-sm text-slate-500">
         <p>Astro combines AI-guided astrology, palmistry, and a curated network of astrologers to help you navigate life&apos;s questions.</p>
         <p>Have questions or feedback? Reach out any time - we&apos;re always listening to the stars, and to you.</p>
       </div>
@@ -74,7 +74,7 @@ export default function InfoPage() {
             onChange={(e) => setPassphrase(e.target.value)}
             autoFocus
           />
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-red-600 text-sm">{error}</p>}
           <button className="btn-primary w-full" disabled={loading}>
             {loading ? "Checking..." : "Continue"}
           </button>

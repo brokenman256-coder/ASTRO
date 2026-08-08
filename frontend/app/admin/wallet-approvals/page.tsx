@@ -47,7 +47,7 @@ export default function WalletApprovalsPage() {
     <AdminGuard>
       <AdminNav />
       <h1 className="text-2xl font-semibold mb-2">Wallet top-up approvals</h1>
-      <p className="text-slate-400 text-sm mb-6">
+      <p className="text-slate-500 text-sm mb-6">
         Every top-up request is simulated (QR-based) and only credits the user&apos;s wallet once you approve it here.
       </p>
 
@@ -58,7 +58,7 @@ export default function WalletApprovalsPage() {
           <div key={tx.id} className="card p-4 flex items-center justify-between">
             <div>
               <p className="font-medium">{rupees(tx.amount)} <span className="text-xs text-slate-500">· {tx.referenceCode}</span></p>
-              <p className="text-xs text-slate-400">{tx.user.name} ({tx.user.email}) · {new Date(tx.createdAt).toLocaleString()}</p>
+              <p className="text-xs text-slate-500">{tx.user.name} ({tx.user.email}) · {new Date(tx.createdAt).toLocaleString()}</p>
             </div>
             <div className="flex gap-2">
               <button className="btn-primary !px-3 !py-1.5" onClick={() => act(tx.id, "approve")} disabled={busyId === tx.id}>

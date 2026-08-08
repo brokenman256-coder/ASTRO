@@ -40,7 +40,7 @@ export default function AdminGatewayPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <input className="input" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <input className="input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
         <button className="btn-primary w-full" disabled={loading}>
           {loading ? "Verifying..." : "Enter dashboard"}
         </button>

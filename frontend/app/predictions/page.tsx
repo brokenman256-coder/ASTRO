@@ -62,14 +62,14 @@ export default function PredictionsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-semibold">AI Predictions</h1>
-        <p className="text-slate-400 mt-1">Strong, specific readings tailored to your sign.</p>
+        <h1 className="text-3xl font-bold text-slate-800">AI Predictions</h1>
+        <p className="text-slate-500 mt-1">Strong, specific readings tailored to your sign.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="card p-6 space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-slate-400 block mb-1">Category</label>
+            <label className="text-xs text-slate-500 block mb-1">Category</label>
             <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -77,7 +77,7 @@ export default function PredictionsPage() {
             </select>
           </div>
           <div>
-            <label className="text-xs text-slate-400 block mb-1">Zodiac sign</label>
+            <label className="text-xs text-slate-500 block mb-1">Zodiac sign</label>
             <select className="input" value={zodiacSign} onChange={(e) => setZodiacSign(e.target.value)}>
               {ZODIAC_SIGNS.map((z) => (
                 <option key={z} value={z}>{z}</option>
@@ -86,10 +86,10 @@ export default function PredictionsPage() {
           </div>
         </div>
         <div>
-          <label className="text-xs text-slate-400 block mb-1">Anything specific on your mind? (optional)</label>
+          <label className="text-xs text-slate-500 block mb-1">Anything specific on your mind? (optional)</label>
           <textarea className="input" rows={3} value={question} onChange={(e) => setQuestion(e.target.value)} />
         </div>
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
         <button className="btn-primary w-full" disabled={loading}>
           {loading ? "Reading the stars..." : "Get my prediction"}
         </button>
@@ -98,11 +98,11 @@ export default function PredictionsPage() {
       {result && (
         <div className="card p-6">
           {!aiConfigured && (
-            <p className="text-amber-400 text-xs mb-3">
+            <p className="text-amber-600 text-xs mb-3">
               Note: this is a placeholder response - the admin hasn&apos;t connected the AI engine yet.
             </p>
           )}
-          <p className="whitespace-pre-line text-slate-200">{result}</p>
+          <p className="whitespace-pre-line text-slate-700">{result}</p>
         </div>
       )}
 
@@ -111,11 +111,11 @@ export default function PredictionsPage() {
           <h2 className="font-medium mb-4">Your past readings</h2>
           <div className="space-y-4">
             {pastPredictions.map((p) => (
-              <div key={p.id} className="border-b border-white/5 pb-4 last:border-none last:pb-0">
+              <div key={p.id} className="border-b border-orange-100 pb-4 last:border-none last:pb-0">
                 <p className="text-xs text-slate-500 mb-1">
                   {p.category} · {p.zodiacSign} · {new Date(p.createdAt).toLocaleDateString()}
                 </p>
-                <p className="text-sm text-slate-300 whitespace-pre-line">{p.resultText}</p>
+                <p className="text-sm text-slate-600 whitespace-pre-line">{p.resultText}</p>
               </div>
             ))}
           </div>

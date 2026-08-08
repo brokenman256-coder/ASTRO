@@ -37,8 +37,8 @@ export default function AdminOverviewPage() {
       )}
       {data?.latestBroadcast && (
         <div className="card p-6 mt-8">
-          <h2 className="text-sm uppercase tracking-widest text-brand-light mb-2">Latest AstroBot broadcast</h2>
-          <p className="text-slate-200">{data.latestBroadcast.formalizedText}</p>
+          <h2 className="text-sm uppercase tracking-widest text-brand mb-2">Latest AstroBot broadcast</h2>
+          <p className="text-slate-700">{data.latestBroadcast.formalizedText}</p>
           <p className="text-xs text-slate-500 mt-2">
             {data.latestBroadcast.mode} · {new Date(data.latestBroadcast.createdAt).toLocaleString()}
           </p>
@@ -51,8 +51,8 @@ export default function AdminOverviewPage() {
 function Stat({ label, value, highlight }: { label: string; value: number; highlight?: boolean }) {
   return (
     <div className={"card p-5 " + (highlight ? "border-amber-400/40" : "")}>
-      <p className="text-xs text-slate-400">{label}</p>
-      <p className={"text-2xl font-semibold mt-1 " + (highlight ? "text-amber-400" : "text-white")}>{value}</p>
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className={"text-2xl font-semibold mt-1 " + (highlight ? "text-amber-600" : "text-slate-800")}>{value}</p>
     </div>
   );
 }

@@ -74,11 +74,11 @@ export default function ChatPage() {
     <div className="max-w-2xl mx-auto flex flex-col h-[calc(100vh-140px)]">
       <div className="mb-4">
         <h1 className="text-2xl font-semibold">Chat with AstroBot</h1>
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="text-slate-500 text-sm mt-1">
           Just talk - AstroBot remembers your conversation and chats naturally.
         </p>
         {!aiConfigured && (
-          <p className="text-amber-400 text-xs mt-2">
+          <p className="text-amber-600 text-xs mt-2">
             AI not configured yet - responses are placeholders until the admin sets ANTHROPIC_API_KEY.
           </p>
         )}
@@ -97,7 +97,7 @@ export default function ChatPage() {
                 "max-w-[80%] rounded-2xl px-4 py-2 text-sm whitespace-pre-line " +
                 (m.role === "USER"
                   ? "bg-brand text-white rounded-br-sm"
-                  : "bg-white/10 text-slate-200 rounded-bl-sm")
+                  : "bg-orange-50 text-slate-700 rounded-bl-sm")
               }
             >
               {m.content}
@@ -106,7 +106,7 @@ export default function ChatPage() {
         ))}
         {sending && (
           <div className="flex justify-start">
-            <div className="bg-white/10 text-slate-400 rounded-2xl rounded-bl-sm px-4 py-2 text-sm">
+            <div className="bg-orange-50 text-slate-500 rounded-2xl rounded-bl-sm px-4 py-2 text-sm">
               AstroBot is typing...
             </div>
           </div>

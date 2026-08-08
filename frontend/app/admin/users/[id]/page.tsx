@@ -75,19 +75,19 @@ export default function AdminUserDetailPage() {
   return (
     <AdminGuard>
       <AdminNav />
-      <Link href="/admin/users" className="text-xs text-slate-500 hover:text-slate-300">← All users</Link>
+      <Link href="/admin/users" className="text-xs text-slate-500 hover:text-slate-600">← All users</Link>
 
-      {loading && <p className="text-slate-400 mt-4">Loading...</p>}
+      {loading && <p className="text-slate-500 mt-4">Loading...</p>}
       {!loading && !user && <p className="text-slate-500 mt-4">User not found.</p>}
 
       {user && (
         <>
           <div className="card p-6 mt-4 mb-8">
             <h1 className="text-2xl font-semibold">{user.name}</h1>
-            <p className="text-sm text-slate-400">{user.email}</p>
+            <p className="text-sm text-slate-500">{user.email}</p>
             <div className="flex gap-6 mt-3 text-sm">
-              <p>Wallet: <span className="text-white">{rupees(user.walletBalance)}</span></p>
-              <p>Joined: <span className="text-white">{new Date(user.createdAt).toLocaleDateString()}</span></p>
+              <p>Wallet: <span className="text-slate-800">{rupees(user.walletBalance)}</span></p>
+              <p>Joined: <span className="text-slate-800">{new Date(user.createdAt).toLocaleDateString()}</span></p>
             </div>
           </div>
 
@@ -101,7 +101,7 @@ export default function AdminUserDetailPage() {
                     <img src={p.imageData} alt="Uploaded palm" className="rounded-lg w-full max-h-48 object-cover mb-3" />
                   </a>
                   <p className="text-xs text-slate-500 mb-1">{new Date(p.createdAt).toLocaleString()}</p>
-                  <p className="text-sm text-slate-300 whitespace-pre-line line-clamp-6">{p.resultText}</p>
+                  <p className="text-sm text-slate-600 whitespace-pre-line line-clamp-6">{p.resultText}</p>
                 </div>
               ))}
             </div>
@@ -115,7 +115,7 @@ export default function AdminUserDetailPage() {
                   <p className="text-xs text-slate-500 mb-1">
                     {p.category} · {p.zodiacSign} · {new Date(p.createdAt).toLocaleString()}
                   </p>
-                  <p className="text-sm text-slate-300 whitespace-pre-line">{p.resultText}</p>
+                  <p className="text-sm text-slate-600 whitespace-pre-line">{p.resultText}</p>
                 </div>
               ))}
             </div>
@@ -129,7 +129,7 @@ export default function AdminUserDetailPage() {
                   <p className="text-xs text-slate-500 mb-1">
                     &quot;{r.concern}&quot; · {new Date(r.createdAt).toLocaleString()}
                   </p>
-                  <p className="text-sm text-slate-300 whitespace-pre-line">{r.resultText}</p>
+                  <p className="text-sm text-slate-600 whitespace-pre-line">{r.resultText}</p>
                 </div>
               ))}
             </div>
@@ -141,17 +141,17 @@ export default function AdminUserDetailPage() {
               {transactions.map((t) => (
                 <div key={t.id} className="card p-4 flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-200">{rupees(t.amount)} <span className="text-xs text-slate-500">· {t.referenceCode}</span></p>
+                    <p className="text-sm text-slate-700">{rupees(t.amount)} <span className="text-xs text-slate-500">· {t.referenceCode}</span></p>
                     <p className="text-xs text-slate-500">{t.type} · {new Date(t.createdAt).toLocaleString()}</p>
                   </div>
                   <span
                     className={
                       "text-xs px-2 py-1 rounded-full " +
                       (t.status === "APPROVED"
-                        ? "bg-green-500/20 text-green-400"
+                        ? "bg-green-500/20 text-green-600"
                         : t.status === "REJECTED"
-                        ? "bg-red-500/20 text-red-400"
-                        : "bg-amber-500/20 text-amber-400")
+                        ? "bg-red-500/20 text-red-600"
+                        : "bg-amber-500/20 text-amber-600")
                     }
                   >
                     {t.status}

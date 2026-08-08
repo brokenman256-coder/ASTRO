@@ -134,7 +134,7 @@ export default function AdminAstrologersPage() {
     <AdminGuard>
       <AdminNav />
       <h1 className="text-2xl font-semibold mb-2">Astrologer roster</h1>
-      <p className="text-slate-400 text-sm mb-6">
+      <p className="text-slate-500 text-sm mb-6">
         Use the bot to automatically add fresh astrologer profiles or retire stale/low-rated ones -
         just like a live astrology marketplace rotates its roster.
       </p>
@@ -147,7 +147,7 @@ export default function AdminAstrologersPage() {
           🤖 Bot: Retire lowest-rated
         </button>
       </div>
-      {message && <p className="text-sm text-brand-light mb-6">{message}</p>}
+      {message && <p className="text-sm text-brand mb-6">{message}</p>}
 
       <div className="card p-6 mb-8 space-y-3">
         <h2 className="font-medium">Bulk-generate astrologers</h2>
@@ -179,7 +179,7 @@ export default function AdminAstrologersPage() {
               <p className="text-xs text-slate-500 mt-1">
                 When on, the bot adds a new astrologer every {scheduler.intervalMinutes} minute
                 {scheduler.intervalMinutes === 1 ? "" : "s"} on its own, generating an AI headshot
-                if <code className="text-slate-400">OPENAI_API_KEY</code> is configured. It retires
+                if <code className="text-slate-500">OPENAI_API_KEY</code> is configured. It retires
                 the weakest profile first if the roster is at its cap, so the list stays bounded.
               </p>
             </div>
@@ -194,7 +194,7 @@ export default function AdminAstrologersPage() {
 
           <div className="grid sm:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-slate-400 block mb-1">Interval (minutes)</label>
+              <label className="text-xs text-slate-500 block mb-1">Interval (minutes)</label>
               <input
                 className="input"
                 type="number"
@@ -206,7 +206,7 @@ export default function AdminAstrologersPage() {
               />
             </div>
             <div>
-              <label className="text-xs text-slate-400 block mb-1">Max active roster size</label>
+              <label className="text-xs text-slate-500 block mb-1">Max active roster size</label>
               <input
                 className="input"
                 type="number"
@@ -221,7 +221,7 @@ export default function AdminAstrologersPage() {
               </p>
             </div>
             <div>
-              <label className="text-xs text-slate-400 block mb-1">Featured per day</label>
+              <label className="text-xs text-slate-500 block mb-1">Featured per day</label>
               <input
                 className="input"
                 type="number"
@@ -278,20 +278,20 @@ export default function AdminAstrologersPage() {
             <div key={a.id} className="card p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.photoUrl} alt={a.name} className="w-10 h-10 rounded-full object-cover bg-white/10" />
+                <img src={a.photoUrl} alt={a.name} className="w-10 h-10 rounded-full object-cover bg-orange-50" />
                 <div>
                   <p className="font-medium">
                     {a.name} <span className="text-xs text-slate-500">· {a.source === "BOT" ? "bot-created" : "manual"}</span>
                   </p>
-                  <p className="text-xs text-slate-400">{a.specialty} · {a.experienceYears} yrs · ★ {a.rating.toFixed(1)}</p>
+                  <p className="text-xs text-slate-500">{a.specialty} · {a.experienceYears} yrs · ★ {a.rating.toFixed(1)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className={"text-xs px-2 py-1 rounded-full " + (a.active ? "bg-green-500/20 text-green-400" : "bg-white/10 text-slate-500")}>
+                <span className={"text-xs px-2 py-1 rounded-full " + (a.active ? "bg-green-500/20 text-green-600" : "bg-orange-50 text-slate-500")}>
                   {a.active ? "Active" : "Retired"}
                 </span>
                 {a.active && (
-                  <button className="text-xs text-red-400 hover:underline" onClick={() => handleRetire(a.id)} disabled={busy}>
+                  <button className="text-xs text-red-600 hover:underline" onClick={() => handleRetire(a.id)} disabled={busy}>
                     Retire
                   </button>
                 )}

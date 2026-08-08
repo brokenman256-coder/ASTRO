@@ -72,8 +72,8 @@ export default function WalletPage() {
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-semibold">Wallet</h1>
-        <p className="text-slate-400 mt-1">
-          Current balance: <span className="text-white font-medium">{balance !== null ? rupees(balance) : "..."}</span>
+        <p className="text-slate-500 mt-1">
+          Current balance: <span className="text-slate-800 font-medium">{balance !== null ? rupees(balance) : "..."}</span>
         </p>
       </div>
 
@@ -81,7 +81,7 @@ export default function WalletPage() {
         <h2 className="font-medium">Add money</h2>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
-            <label className="text-xs text-slate-400 block mb-1">Amount (₹)</label>
+            <label className="text-xs text-slate-500 block mb-1">Amount (₹)</label>
             <input
               className="input"
               type="number"
@@ -96,17 +96,17 @@ export default function WalletPage() {
             {loading ? "Generating..." : "Generate QR"}
           </button>
         </div>
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
       </form>
 
       {qrDataUrl && (
         <div className="card p-6 text-center space-y-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qrDataUrl} alt="Payment QR code" className="mx-auto rounded-xl bg-white p-3" width={220} height={220} />
-          <p className="text-sm text-slate-400">
-            Scan to pay, then wait for admin approval. Reference: <span className="text-white">{reference}</span>
+          <p className="text-sm text-slate-500">
+            Scan to pay, then wait for admin approval. Reference: <span className="text-slate-800">{reference}</span>
           </p>
-          <p className="text-xs text-amber-400">
+          <p className="text-xs text-amber-600">
             Demo mode: this QR simulates a payment flow. Your balance updates once an admin approves the request.
           </p>
         </div>
@@ -117,19 +117,19 @@ export default function WalletPage() {
         {transactions.length === 0 && <p className="text-sm text-slate-500">No transactions yet.</p>}
         <div className="space-y-2">
           {transactions.map((t) => (
-            <div key={t.id} className="flex justify-between items-center text-sm border-b border-white/5 py-2">
+            <div key={t.id} className="flex justify-between items-center text-sm border-b border-orange-100 py-2">
               <div>
-                <p className="text-slate-200">{rupees(t.amount)}</p>
+                <p className="text-slate-700">{rupees(t.amount)}</p>
                 <p className="text-xs text-slate-500">{t.referenceCode} · {new Date(t.createdAt).toLocaleDateString()}</p>
               </div>
               <span
                 className={
                   "text-xs px-2 py-1 rounded-full " +
                   (t.status === "APPROVED"
-                    ? "bg-green-500/20 text-green-400"
+                    ? "bg-green-500/20 text-green-600"
                     : t.status === "REJECTED"
-                    ? "bg-red-500/20 text-red-400"
-                    : "bg-amber-500/20 text-amber-400")
+                    ? "bg-red-500/20 text-red-600"
+                    : "bg-amber-500/20 text-amber-600")
                 }
               >
                 {t.status}

@@ -66,7 +66,7 @@ export default function GuidedPredictionsPage() {
     <AdminGuard>
       <AdminNav />
       <h1 className="text-2xl font-semibold mb-2">Guided predictions</h1>
-      <p className="text-slate-400 text-sm mb-6 max-w-2xl">
+      <p className="text-slate-500 text-sm mb-6 max-w-2xl">
         Pick a user, jot down the keypoints in plain English - what you already know or want
         conveyed - and AstroBot writes it up as a full, formal astrology reading and saves it
         straight to that user&apos;s account. They&apos;ll see it exactly like any other AI
@@ -75,7 +75,7 @@ export default function GuidedPredictionsPage() {
 
       <form onSubmit={handleGenerate} className="card p-6 space-y-4 max-w-xl">
         <div>
-          <label className="text-xs text-slate-400 block mb-1">User</label>
+          <label className="text-xs text-slate-500 block mb-1">User</label>
           <select className="input" value={userId} onChange={(e) => setUserId(e.target.value)}>
             {users.length === 0 && <option value="">No users yet</option>}
             {users.map((u) => (
@@ -86,7 +86,7 @@ export default function GuidedPredictionsPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-slate-400 block mb-1">Category</label>
+            <label className="text-xs text-slate-500 block mb-1">Category</label>
             <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -94,7 +94,7 @@ export default function GuidedPredictionsPage() {
             </select>
           </div>
           <div>
-            <label className="text-xs text-slate-400 block mb-1">Zodiac sign</label>
+            <label className="text-xs text-slate-500 block mb-1">Zodiac sign</label>
             <select className="input" value={zodiacSign} onChange={(e) => setZodiacSign(e.target.value)}>
               {ZODIAC_SIGNS.map((z) => (
                 <option key={z} value={z}>{z}</option>
@@ -104,7 +104,7 @@ export default function GuidedPredictionsPage() {
         </div>
 
         <div>
-          <label className="text-xs text-slate-400 block mb-1">Keypoints (plain English)</label>
+          <label className="text-xs text-slate-500 block mb-1">Keypoints (plain English)</label>
           <textarea
             className="input"
             rows={4}
@@ -115,7 +115,7 @@ export default function GuidedPredictionsPage() {
           />
         </div>
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
         <button className="btn-primary w-full" disabled={busy || !userId}>
           {busy ? "Writing the reading..." : "Generate & save to user"}
         </button>
@@ -124,11 +124,11 @@ export default function GuidedPredictionsPage() {
       {result && (
         <div className="card p-6 max-w-xl mt-6">
           {!aiConfigured && (
-            <p className="text-amber-400 text-xs mb-3">
+            <p className="text-amber-600 text-xs mb-3">
               AI not configured - this is a placeholder, not a real formalized reading.
             </p>
           )}
-          <p className="whitespace-pre-line text-slate-200">{result}</p>
+          <p className="whitespace-pre-line text-slate-700">{result}</p>
         </div>
       )}
     </AdminGuard>

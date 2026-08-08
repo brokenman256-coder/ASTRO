@@ -86,7 +86,7 @@ export default function BotCommandCenterPage() {
     <AdminGuard>
       <AdminNav />
       <h1 className="text-2xl font-semibold mb-2">Bot command center</h1>
-      <p className="text-slate-400 text-sm mb-6">
+      <p className="text-slate-500 text-sm mb-6">
         Say what you want AstroBot to tell users in plain language - it will rewrite it formally
         before anything is published. When you&apos;re not actively commanding it, switch it to
         independent mode and it will generate its own predictions and insights.
@@ -131,11 +131,11 @@ export default function BotCommandCenterPage() {
         </button>
 
         {formalized && (
-          <div className="bg-white/5 rounded-xl p-4 mt-2 space-y-3">
+          <div className="bg-orange-50 rounded-xl p-4 mt-2 space-y-3">
             {!aiConfigured && (
-              <p className="text-amber-400 text-xs">AI not configured - showing your raw message as a fallback.</p>
+              <p className="text-amber-600 text-xs">AI not configured - showing your raw message as a fallback.</p>
             )}
-            <p className="text-slate-200">{formalized}</p>
+            <p className="text-slate-700">{formalized}</p>
             <button className="btn-primary" onClick={handlePublish} disabled={busy}>
               Publish to users
             </button>
@@ -157,8 +157,8 @@ export default function BotCommandCenterPage() {
         <h2 className="font-medium mb-4">Broadcast history</h2>
         <div className="space-y-3">
           {broadcasts.map((b) => (
-            <div key={b.id} className="border-b border-white/5 pb-3">
-              <p className="text-sm text-slate-200">{b.formalizedText}</p>
+            <div key={b.id} className="border-b border-orange-100 pb-3">
+              <p className="text-sm text-slate-700">{b.formalizedText}</p>
               <p className="text-xs text-slate-500 mt-1">
                 {b.mode} · {new Date(b.createdAt).toLocaleString()}
               </p>

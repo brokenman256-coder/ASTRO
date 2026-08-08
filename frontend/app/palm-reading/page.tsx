@@ -41,7 +41,7 @@ export default function PalmReadingPage() {
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
         <h1 className="text-3xl font-semibold">Palm Reading</h1>
-        <p className="text-slate-400 mt-1">
+        <p className="text-slate-500 mt-1">
           Upload a clear, well-lit photo of your open palm for a detailed AI-guided reading.
         </p>
       </div>
@@ -51,13 +51,13 @@ export default function PalmReadingPage() {
           type="file"
           accept="image/jpeg,image/png,image/webp"
           onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-          className="block w-full text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-brand file:px-4 file:py-2 file:text-white"
+          className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand file:px-4 file:py-2 file:text-white"
         />
         {preview && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Palm preview" className="max-h-64 rounded-xl mx-auto" />
         )}
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
         <button className="btn-primary w-full" disabled={loading || !file}>
           {loading ? "Reading your palm..." : "Get my reading"}
         </button>
@@ -66,11 +66,11 @@ export default function PalmReadingPage() {
       {result && (
         <div className="card p-6">
           {!aiConfigured && (
-            <p className="text-amber-400 text-xs mb-3">
+            <p className="text-amber-600 text-xs mb-3">
               Note: this is a placeholder response - the admin hasn&apos;t connected the AI engine yet.
             </p>
           )}
-          <p className="whitespace-pre-line text-slate-200">{result}</p>
+          <p className="whitespace-pre-line text-slate-700">{result}</p>
         </div>
       )}
     </div>

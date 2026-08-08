@@ -19,7 +19,7 @@ export default function AdminNav() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-white/10 pb-4">
+    <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-orange-100 pb-4">
       {LINKS.map((l) => {
         const active = l.href === "/admin" ? pathname === l.href : pathname.startsWith(l.href);
         return (
@@ -28,7 +28,7 @@ export default function AdminNav() {
             href={l.href}
             className={
               "text-sm px-3 py-1.5 rounded-lg " +
-              (active ? "bg-brand text-white" : "text-slate-400 hover:bg-white/10")
+              (active ? "bg-brand text-white" : "text-slate-500 hover:bg-orange-50")
             }
           >
             {l.label}
@@ -36,7 +36,7 @@ export default function AdminNav() {
         );
       })}
       <button
-        className="ml-auto text-sm text-slate-500 hover:text-red-400"
+        className="ml-auto text-sm text-slate-500 hover:text-red-600"
         onClick={() => {
           clearAdminToken();
           router.push("/");

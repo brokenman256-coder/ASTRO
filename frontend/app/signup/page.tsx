@@ -35,7 +35,7 @@ export default function SignupPage() {
         <input className="input" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
         <input className="input" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         <input className="input" type="password" placeholder="Password (min 6 chars)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-600 text-sm">{error}</p>}
         <button className="btn-primary w-full" disabled={loading}>
           {loading ? "Creating account..." : "Sign up"}
         </button>

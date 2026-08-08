@@ -28,14 +28,14 @@ export default function HomePage() {
 
   return (
     <div className="space-y-16">
-      <section className="text-center space-y-6 py-10">
-        <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-brand-light via-white to-accent bg-clip-text text-transparent">
+      <section className="text-center space-y-6 py-10 rounded-3xl bg-gradient-to-b from-orange-100 via-orange-50 to-transparent -mt-4 px-4">
+        <h1 className="text-4xl md:text-6xl font-extrabold text-brand-dark">
           {branding?.appName ?? "Astro"}
         </h1>
-        <p className="text-lg text-slate-300 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-700 max-w-2xl mx-auto font-medium">
           {branding?.tagline ?? "Your stars, decoded."}
         </p>
-        <p className="text-slate-400 max-w-xl mx-auto text-sm">
+        <p className="text-slate-500 max-w-xl mx-auto text-sm">
           {branding?.aboutText}
         </p>
         <div className="flex justify-center gap-4 pt-4">
@@ -46,11 +46,11 @@ export default function HomePage() {
 
       {broadcasts.length > 0 && (
         <section className="card p-6 max-w-2xl mx-auto">
-          <h2 className="text-sm uppercase tracking-widest text-brand-light mb-3">
+          <h2 className="text-sm uppercase tracking-widest text-brand font-semibold mb-3">
             AstroBot says
           </h2>
-          <p className="text-slate-200">{broadcasts[0].formalizedText}</p>
-          <p className="text-xs text-slate-500 mt-2">
+          <p className="text-slate-700">{broadcasts[0].formalizedText}</p>
+          <p className="text-xs text-slate-400 mt-2">
             {new Date(broadcasts[0].createdAt).toLocaleString()} ·{" "}
             {broadcasts[0].mode === "AUTONOMOUS" ? "independent insight" : "official announcement"}
           </p>
@@ -90,9 +90,9 @@ export default function HomePage() {
 
 function FeatureCard({ title, desc, href }: { title: string; desc: string; href: string }) {
   return (
-    <Link href={href} className="card p-6 hover:border-brand-light/50 transition-colors block">
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-slate-400">{desc}</p>
+    <Link href={href} className="card p-6 hover:border-brand/40 hover:shadow-md transition-all block">
+      <h3 className="text-lg font-semibold text-slate-800 mb-2">{title}</h3>
+      <p className="text-sm text-slate-500">{desc}</p>
     </Link>
   );
 }
