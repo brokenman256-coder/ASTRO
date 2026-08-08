@@ -55,6 +55,22 @@ const FIRST_NAMES: { name: string; gender: "man" | "woman" }[] = [
   { name: "Isha", gender: "woman" }, { name: "Abhinav", gender: "man" },
 ];
 
+// Regional languages layered on top of Hindi/English so the marketplace's
+// language filter (frontend/app/astrologers/page.tsx) actually has variety
+// to filter across, matching the target audience.
+const REGIONAL_LANGUAGES = [
+  "Marathi", "Tamil", "Telugu", "Bengali", "Punjabi",
+  "Gujarati", "Kannada", "Malayalam", "Urdu", "Odia",
+];
+
+function pickLanguages(): string[] {
+  const langs = new Set<string>(["English"]);
+  if (Math.random() < 0.85) langs.add("Hindi");
+  if (Math.random() < 0.4) langs.add(pick(REGIONAL_LANGUAGES));
+  if (Math.random() < 0.15) langs.add(pick(REGIONAL_LANGUAGES));
+  return Array.from(langs);
+}
+
 const LAST_NAMES = [
   "Sharma", "Verma", "Iyer", "Rao", "Kapoor", "Mehta", "Nair", "Gupta",
   "Chawla", "Reddy", "Joshi", "Bhat", "Agarwal", "Bose", "Chatterjee",
@@ -104,6 +120,7 @@ export function generateAstrologerProfile() {
     specialty,
     experienceYears,
     rating,
+    languages: pickLanguages(),
     bio: `${name} ${bioTemplate}`,
     // Real (licensed-for-any-use) human portrait photos, not a cartoon
     // avatar - free, instant, no API key. Used whenever OPENAI_API_KEY
@@ -182,6 +199,7 @@ export async function bulkSeedAstrologers(count: number) {
     specialty: string;
     experienceYears: number;
     rating: number;
+    languages: string[];
     bio: string;
     photoUrl: string;
     source: "BOT";

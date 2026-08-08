@@ -4,10 +4,10 @@
 
 body {
   @apply text-slate-800 min-h-screen;
-  background-color: #fff7ed;
-  background-image: radial-gradient(circle at 12% 8%, rgba(255, 159, 77, 0.16), transparent 42%),
-    radial-gradient(circle at 88% 4%, rgba(245, 185, 66, 0.14), transparent 38%),
-    radial-gradient(circle at 50% 100%, rgba(232, 89, 12, 0.06), transparent 55%);
+  background-color: #faf5ea;
+  background-image: radial-gradient(circle at 12% 8%, rgba(122, 18, 48, 0.09), transparent 42%),
+    radial-gradient(circle at 88% 4%, rgba(245, 185, 66, 0.16), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgba(30, 35, 64, 0.05), transparent 55%);
   background-attachment: fixed;
 }
 
@@ -43,18 +43,18 @@ body {
 
 a.card:hover,
 .card-interactive:hover {
-  @apply shadow-card-hover border-brand/30;
+  @apply shadow-card-hover border-maroon/30;
   transform: translateY(-3px);
 }
 
 .btn-primary {
   @apply text-white font-semibold rounded-full px-5 py-2.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
-  background-image: linear-gradient(135deg, #ff9f4d, #ff7a1a 45%, #e8590c);
-  box-shadow: 0 8px 24px -8px rgba(232, 89, 12, 0.55);
+  background-image: linear-gradient(135deg, #9a1c40, #7a1230 55%, #4a0a1c);
+  box-shadow: 0 8px 24px -8px rgba(74, 10, 28, 0.6), inset 0 1px 0 rgba(245, 214, 122, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 10px 30px -6px rgba(232, 89, 12, 0.65);
+  box-shadow: 0 10px 30px -6px rgba(74, 10, 28, 0.7), inset 0 1px 0 rgba(245, 214, 122, 0.35);
   transform: translateY(-1px);
 }
 
@@ -63,7 +63,7 @@ a.card:hover,
 }
 
 .btn-secondary {
-  @apply bg-orange-50 hover:bg-orange-100 text-brand-dark font-semibold rounded-full px-5 py-2.5 transition-all duration-200 disabled:opacity-50 border border-orange-200;
+  @apply bg-white hover:bg-orange-50 text-maroon font-semibold rounded-full px-5 py-2.5 transition-all duration-200 disabled:opacity-50 border border-maroon/25;
 }
 
 .btn-secondary:hover:not(:disabled) {

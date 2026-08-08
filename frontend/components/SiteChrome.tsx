@@ -31,21 +31,24 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-10 pb-24 md:pb-10">{children}</main>
       <BottomNav />
-      <footer className="border-t border-orange-100 mt-20 py-10 bg-white pb-24 md:pb-10">
+      <footer
+        className="border-t border-gold/20 mt-20 py-10 pb-24 md:pb-10"
+        style={{ backgroundImage: "linear-gradient(120deg, #1e2340, #2a1030 60%, #1e2340)" }}
+      >
         <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
-            <p className="font-display text-lg font-bold text-brand-dark">✦ ASTRO</p>
-            <p className="text-xs text-slate-500 mt-1">Your stars, decoded.</p>
+            <p className="font-display text-lg font-bold text-gold-foil">✦ ASTRO</p>
+            <p className="text-xs text-slate-400 mt-1">Your stars, decoded.</p>
           </div>
-          <div className="flex flex-wrap justify-center gap-4 text-xs text-slate-500">
+          <div className="flex flex-wrap justify-center gap-4 text-xs text-slate-300">
             {FOOTER_LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="hover:text-brand-dark">
+              <Link key={l.href} href={l.href} className="hover:text-gold transition-colors">
                 {l.label}
               </Link>
             ))}
           </div>
         </div>
-        <p className="text-center text-xs text-slate-400 mt-6">
+        <p className="text-center text-xs text-slate-500 mt-6">
           © {new Date().getFullYear()} Astro. All rights reserved. Astrologers on this platform are
           AI personas for entertainment and reflection, not licensed professional advice.
         </p>

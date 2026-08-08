@@ -27,7 +27,10 @@ export default function BottomNav() {
   const allItems = [...ITEMS, profileItem];
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-orange-100 pb-[env(safe-area-inset-bottom)]">
+    <nav
+      className="md:hidden fixed bottom-0 inset-x-0 z-40 backdrop-blur-md border-t border-gold/20 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-8px_rgba(0,0,0,0.35)]"
+      style={{ backgroundImage: "linear-gradient(120deg, #1e2340, #2a1030 60%, #1e2340)" }}
+    >
       <div className="grid grid-cols-5">
         {allItems.map((item) => {
           const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
@@ -35,8 +38,8 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-medium ${
-                active ? "text-brand-dark" : "text-slate-400"
+              className={`flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
+                active ? "text-gold" : "text-slate-400"
               }`}
             >
               <span className="text-lg leading-none">{item.icon}</span>

@@ -36,35 +36,38 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-orange-100 shadow-sm shadow-orange-900/5">
+    <nav
+      className="sticky top-0 z-40 backdrop-blur-md border-b border-gold/20 shadow-lg shadow-black/20"
+      style={{ backgroundImage: "linear-gradient(120deg, #1e2340, #2a1030 60%, #1e2340)" }}
+    >
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="font-display text-xl font-bold tracking-wide text-brand-dark">
+        <Link href="/" className="font-display text-xl font-bold tracking-wide text-gold-foil">
           ✦ Astro
         </Link>
 
-        <div className="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600">
+        <div className="hidden md:flex items-center gap-4 text-sm font-medium text-slate-200">
           {NAV_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="hover:text-brand-dark">
+            <Link key={l.href} href={l.href} className="hover:text-gold transition-colors">
               {l.label}
             </Link>
           ))}
           {user ? (
             <>
-              <Link href="/profile" className="hover:text-brand-dark">Hi, {user.name}</Link>
-              <button className="btn-secondary !px-3 !py-1.5" onClick={handleLogout}>
+              <Link href="/profile" className="hover:text-gold transition-colors">Hi, {user.name}</Link>
+              <button className="btn-secondary !bg-white/10 !text-gold !border-gold/30 hover:!bg-white/20 !px-3 !py-1.5" onClick={handleLogout}>
                 Log out
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className="hover:text-brand-dark">Log in</Link>
+              <Link href="/login" className="hover:text-gold transition-colors">Log in</Link>
               <Link href="/signup" className="btn-primary !px-3 !py-1.5">Sign up</Link>
             </>
           )}
         </div>
 
         <button
-          className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-slate-600 hover:bg-orange-50 text-xl"
+          className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-slate-200 hover:bg-white/10 text-xl"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
@@ -74,26 +77,29 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden border-t border-orange-100 bg-white px-4 py-3 space-y-1 max-h-[calc(100vh-56px)] overflow-y-auto">
+        <div
+          className="md:hidden border-t border-gold/20 px-4 py-3 space-y-1 max-h-[calc(100vh-56px)] overflow-y-auto"
+          style={{ backgroundImage: "linear-gradient(120deg, #1e2340, #2a1030 60%, #1e2340)" }}
+        >
           {NAV_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="block py-2.5 px-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-brand-dark"
+              className="block py-2.5 px-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 hover:text-gold"
             >
               {l.label}
             </Link>
           ))}
-          <div className="pt-2 mt-2 border-t border-orange-100">
+          <div className="pt-2 mt-2 border-t border-gold/20">
             {user ? (
               <>
                 <Link
                   href="/profile"
-                  className="block py-2.5 px-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-brand-dark"
+                  className="block py-2.5 px-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 hover:text-gold"
                 >
                   Profile ({user.name})
                 </Link>
-                <button className="btn-secondary w-full mt-2" onClick={handleLogout}>
+                <button className="btn-secondary !bg-white/10 !text-gold !border-gold/30 hover:!bg-white/20 w-full mt-2" onClick={handleLogout}>
                   Log out
                 </button>
               </>
@@ -101,7 +107,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="block py-2.5 px-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-orange-50 hover:text-brand-dark"
+                  className="block py-2.5 px-2 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 hover:text-gold"
                 >
                   Log in
                 </Link>

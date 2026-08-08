@@ -80,23 +80,26 @@ export default function HomePage() {
   return (
     <div className="space-y-20">
       {/* Hero */}
-      <section className="star-field relative overflow-hidden text-center space-y-6 py-16 rounded-3xl bg-gradient-to-b from-orange-100 via-orange-50 to-transparent -mt-4 px-4">
-        <div className="glow-orb w-72 h-72 bg-brand/30 -top-20 -left-10 animate-pulse-slow" />
+      <section
+        className="star-field relative overflow-hidden text-center space-y-6 py-20 rounded-3xl -mt-4 px-4 shadow-2xl shadow-black/30"
+        style={{ backgroundImage: "linear-gradient(160deg, #1e2340, #2a1030 55%, #1e2340)" }}
+      >
+        <div className="glow-orb w-72 h-72 bg-maroon/40 -top-20 -left-10 animate-pulse-slow" />
         <div className="glow-orb w-80 h-80 bg-gold/25 -top-10 -right-16 animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
         <div className="relative">
-          <h1 className="font-display text-5xl md:text-7xl font-extrabold text-gradient-brand tracking-tight animate-fade-up">
+          <h1 className="font-display text-5xl md:text-7xl font-extrabold text-gold-foil tracking-tight animate-fade-up">
             {branding?.appName ?? "ASTRO"}
           </h1>
-          <p className="text-lg text-slate-700 max-w-2xl mx-auto font-medium mt-5 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+          <p className="text-lg text-slate-200 max-w-2xl mx-auto font-medium mt-5 animate-fade-up" style={{ animationDelay: "0.1s" }}>
             {branding?.tagline ?? "Your stars, decoded."}
           </p>
-          <p className="text-slate-500 max-w-xl mx-auto text-sm mt-3 animate-fade-up" style={{ animationDelay: "0.2s" }}>
+          <p className="text-slate-400 max-w-xl mx-auto text-sm mt-3 animate-fade-up" style={{ animationDelay: "0.2s" }}>
             {branding?.aboutText ??
               "Discover personalized astrology guidance, predictions, palm reading and consultations."}
           </p>
           <div className="flex justify-center gap-4 pt-6 flex-wrap animate-fade-up" style={{ animationDelay: "0.3s" }}>
             <Link href="/astrologers" className="btn-primary">Chat with an Astrologer</Link>
-            <Link href="/predictions" className="btn-secondary">Get a Prediction</Link>
+            <Link href="/predictions" className="btn-secondary !bg-white/10 !text-gold !border-gold/30 hover:!bg-white/20">Get a Prediction</Link>
           </div>
         </div>
       </section>
