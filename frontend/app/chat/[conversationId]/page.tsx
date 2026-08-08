@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { apiGet, apiPost } from "@/lib/api";
 import { getUserToken } from "@/lib/session";
@@ -35,6 +36,7 @@ export default function ConsultationChatPage() {
   const [failedInput, setFailedInput] = useState<string | null>(null);
   const [aiConfigured, setAiConfigured] = useState(true);
   const [startingNew, setStartingNew] = useState(false);
+  const [endedReason, setEndedReason] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -83,11 +85,14 @@ export default function ConsultationChatPage() {
     } catch (err) {
       setMessages((prev) => prev.filter((m) => m.id !== optimisticUser.id));
       const message = err instanceof Error ? err.message : "Sorry, the astrologer is temporarily unavailable. Please try again.";
-      if (message.toLowerCase().includes("session has ended")) {
+      const lower = message.toLowerCase();
+      if (lower.includes("session has ended") || lower.includes("wallet balance is too low")) {
         setStatus("ENDED");
+        setEndedReason(message);
+      } else {
+        setSendError(message);
+        setFailedInput(text);
       }
-      setSendError(message);
-      setFailedInput(text);
     } finally {
       setSending(false);
     }
@@ -113,6 +118,8 @@ export default function ConsultationChatPage() {
     try {
       const data = await apiPost("/conversations", { astrologerId: astrologer.id, forceNew: true }, token);
       router.push(`/chat/${data.conversation.id}`);
+    } catch (err) {
+      setEndedReason(err instanceof Error ? err.message : "Unable to start a new consultation. Please try again.");
     } finally {
       setStartingNew(false);
     }
@@ -192,8 +199,13 @@ export default function ConsultationChatPage() {
         ))}
         {sending && (
           <div className="flex justify-start">
-            <div className="bg-orange-50 text-slate-500 rounded-2xl rounded-bl-sm px-4 py-2 text-sm">
-              {astrologer.name} is typing...
+            <div className="bg-orange-50 text-slate-500 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm flex items-center gap-2">
+              <span>{astrologer.name} is typing</span>
+              <span className="flex gap-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand animate-bounce" style={{ animationDelay: "300ms" }} />
+              </span>
             </div>
           </div>
         )}
@@ -216,10 +228,17 @@ export default function ConsultationChatPage() {
 
       {status === "ENDED" ? (
         <div className="card p-4 text-center space-y-3">
-          <p className="text-sm text-slate-600">Your consultation session has ended.</p>
-          <button className="btn-primary" onClick={handleStartNew} disabled={startingNew}>
-            {startingNew ? "Starting..." : "Start New Consultation"}
-          </button>
+          <p className="text-sm text-slate-600">{endedReason ?? "Your consultation session has ended."}</p>
+          {endedReason?.toLowerCase().includes("wallet balance") && (
+            <Link href="/wallet" className="btn-secondary inline-block !py-1.5 !px-3 text-xs">
+              Add Funds to Wallet
+            </Link>
+          )}
+          <div>
+            <button className="btn-primary" onClick={handleStartNew} disabled={startingNew}>
+              {startingNew ? "Starting..." : "Start New Consultation"}
+            </button>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex gap-2">

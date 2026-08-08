@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { requireUser, requireAdmin, AuthedRequest } from "../middleware/auth";
 import { buildTopupQr } from "../services/wallet.service";
+import { getPaymentSettings } from "../services/payment.service";
 
 export const walletRouter = Router();
 
@@ -12,13 +13,30 @@ walletRouter.get("/balance", requireUser, async (req: AuthedRequest, res) => {
   res.json({ balancePaise: user.walletBalance });
 });
 
-const topupSchema = z.object({ amountPaise: z.number().int().min(100).max(500000) });
+// Public, read-only: lets the frontend show the minimum recharge amount and
+// minimum session length before a user is even logged in.
+walletRouter.get("/payment-settings", async (_req, res) => {
+  const settings = await getPaymentSettings();
+  res.json({
+    minRechargeAmountPaise: settings.minRechargeAmountPaise,
+    minSessionMinutes: settings.minSessionMinutes,
+  });
+});
+
+const topupSchema = z.object({ amountPaise: z.number().int().max(500000) });
 
 // User requests to add money: generates a scan-to-pay QR + a pending
 // transaction. Nothing is credited until an admin reviews and approves it.
 walletRouter.post("/topup-request", requireUser, async (req: AuthedRequest, res) => {
   const parsed = topupSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: "amountPaise must be between 100 and 500000" });
+  if (!parsed.success) return res.status(400).json({ error: "Enter a valid amount." });
+
+  const paymentSettings = await getPaymentSettings();
+  if (parsed.data.amountPaise < paymentSettings.minRechargeAmountPaise) {
+    return res.status(400).json({
+      error: `Minimum recharge amount is ₹${(paymentSettings.minRechargeAmountPaise / 100).toFixed(2)}.`,
+    });
+  }
 
   const { referenceCode, qrPayload, qrDataUrl } = await buildTopupQr({
     amountPaise: parsed.data.amountPaise,
@@ -89,4 +107,28 @@ walletRouter.post("/admin/:id/reject", requireAdmin, async (req: AuthedRequest, 
   });
 
   res.json({ transaction: updatedTx });
+});
+
+// ---- Admin: payment/billing configuration ----
+
+walletRouter.get("/admin/payment-settings", requireAdmin, async (_req, res) => {
+  const settings = await getPaymentSettings();
+  res.json({ settings });
+});
+
+const paymentSettingsSchema = z.object({
+  minRechargeAmountPaise: z.number().int().min(100).max(500000).optional(),
+  minSessionMinutes: z.number().int().min(1).max(120).optional(),
+});
+
+walletRouter.put("/admin/payment-settings", requireAdmin, async (req, res) => {
+  const parsed = paymentSettingsSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+
+  const settings = await prisma.paymentSettings.upsert({
+    where: { id: 1 },
+    update: parsed.data,
+    create: { id: 1, ...parsed.data },
+  });
+  res.json({ settings });
 });

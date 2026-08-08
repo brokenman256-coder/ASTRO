@@ -167,7 +167,7 @@ function AstrologerCard({ astrologer: a }: { astrologer: Astrologer }) {
             className="rounded-full bg-orange-50 object-cover w-16 h-16"
             unoptimized
           />
-          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white" title="Online" />
+          <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white shadow-[0_0_6px_rgba(34,197,94,0.8)]" title="Online" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">

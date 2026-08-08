@@ -92,6 +92,13 @@ model Conversation {
   endedAt      DateTime?
   updatedAt    DateTime           @updatedAt
 
+  // Billing: consultations are metered against the user's wallet in whole
+  // minute blocks, with an admin-configurable minimum (see PaymentSettings).
+  // billedMinutes tracks how many minutes have already been charged so
+  // sendMessage() only ever charges for newly-elapsed minutes, never twice.
+  billedMinutes Int @default(0)
+  costPaise     Int @default(0)
+
   messages Message[]
 
   @@index([userId])
@@ -173,10 +180,23 @@ model WalletTransaction {
   status            TxStatus  @default(PENDING)
   referenceCode     String    @unique
   qrPayload         String
+  note              String? // human-readable reason, e.g. "5-min consultation with Meera Joshi"
+  conversationId    String? // set for DEBIT transactions charged against a consultation
   createdAt         DateTime  @default(now())
   reviewedByAdminId String?
   reviewedByAdmin   Admin?    @relation(fields: [reviewedByAdminId], references: [id])
   reviewedAt        DateTime?
+}
+
+// Singleton admin-configurable payment/billing rules. Consultations are
+// prepaid in whole-minute blocks against the user's wallet: starting a new
+// consultation immediately charges minSessionMinutes as a minimum, and
+// longer sessions are billed incrementally as they cross each new minute.
+model PaymentSettings {
+  id                     Int      @id @default(1)
+  minRechargeAmountPaise Int      @default(10000) // ₹100
+  minSessionMinutes      Int      @default(5)
+  updatedAt              DateTime @updatedAt
 }
 
 enum PredictionCategory {

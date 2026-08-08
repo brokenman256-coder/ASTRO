@@ -10,7 +10,33 @@ module.exports = {
           light: "#FF9F4D",
         },
         accent: "#C2410C",
+        gold: "#F5B942",
         cream: "#FFF7ED",
+      },
+      boxShadow: {
+        glow: "0 8px 30px -8px rgba(232, 89, 12, 0.45)",
+        "glow-lg": "0 20px 60px -15px rgba(232, 89, 12, 0.5)",
+        card: "0 2px 10px -2px rgba(88, 42, 4, 0.06)",
+        "card-hover": "0 16px 40px -12px rgba(88, 42, 4, 0.18)",
+      },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(14px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "0.55" },
+          "50%": { opacity: "0.9" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both",
+        shimmer: "shimmer 2.5s linear infinite",
+        "pulse-slow": "pulse-slow 4s ease-in-out infinite",
       },
     },
   },

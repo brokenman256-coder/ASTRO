@@ -10,6 +10,7 @@ import {
   endConversation,
   SessionEndedError,
   DailyLimitError,
+  InsufficientBalanceError,
 } from "../services/conversation.service";
 
 export const conversationsRouter = Router();
@@ -48,7 +49,10 @@ conversationsRouter.post("/", requireUser, async (req: AuthedRequest, res) => {
       Boolean(parsed.data.forceNew)
     );
     res.status(201).json({ conversation, astrologer, isNew });
-  } catch {
+  } catch (err) {
+    if (err instanceof InsufficientBalanceError) {
+      return res.status(402).json({ error: err.message, insufficientBalance: true });
+    }
     res.status(404).json({ error: "Astrologer not found" });
   }
 });

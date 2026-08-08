@@ -22,6 +22,7 @@ export default function WalletPage() {
   const [token, setToken] = useState<string | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [minRechargePaise, setMinRechargePaise] = useState(10000);
   const [amount, setAmount] = useState("500");
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
@@ -36,6 +37,12 @@ export default function WalletPage() {
     }
     setToken(t);
     refresh(t);
+    apiGet("/wallet/payment-settings")
+      .then((d) => {
+        setMinRechargePaise(d.minRechargeAmountPaise);
+        setAmount((d.minRechargeAmountPaise / 100).toFixed(0));
+      })
+      .catch(() => {});
   }, [router]);
 
   async function refresh(t: string) {
@@ -68,6 +75,9 @@ export default function WalletPage() {
 
   if (!token) return null;
 
+  const minRechargeRupees = minRechargePaise / 100;
+  const quickAmounts = Array.from(new Set([minRechargeRupees, minRechargeRupees * 2, minRechargeRupees * 5]));
+
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
@@ -79,14 +89,32 @@ export default function WalletPage() {
 
       <form onSubmit={handleTopup} className="card p-6 space-y-4">
         <h2 className="font-medium">Add money</h2>
+        <p className="text-xs text-slate-500">Minimum recharge: ₹{minRechargeRupees.toFixed(0)}</p>
+        <div className="flex flex-wrap gap-2">
+          {quickAmounts.map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setAmount(r.toFixed(0))}
+              className={
+                "text-xs px-3 py-1.5 rounded-full border " +
+                (Number(amount) === r
+                  ? "bg-brand text-white border-brand"
+                  : "bg-orange-50 text-slate-600 border-orange-200 hover:bg-orange-100")
+              }
+            >
+              ₹{r.toFixed(0)}
+            </button>
+          ))}
+        </div>
         <div className="flex gap-3 items-end">
           <div className="flex-1">
             <label className="text-xs text-slate-500 block mb-1">Amount (₹)</label>
             <input
               className="input"
               type="number"
-              min={1}
-              step="0.01"
+              min={minRechargeRupees}
+              step="1"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required

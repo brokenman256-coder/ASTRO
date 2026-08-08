@@ -76,20 +76,24 @@ export default function HomePage() {
   return (
     <div className="space-y-20">
       {/* Hero */}
-      <section className="text-center space-y-6 py-10 rounded-3xl bg-gradient-to-b from-orange-100 via-orange-50 to-transparent -mt-4 px-4">
-        <h1 className="text-4xl md:text-6xl font-extrabold text-brand-dark tracking-tight">
-          {branding?.appName ?? "ASTRO"}
-        </h1>
-        <p className="text-lg text-slate-700 max-w-2xl mx-auto font-medium">
-          {branding?.tagline ?? "Your stars, decoded."}
-        </p>
-        <p className="text-slate-500 max-w-xl mx-auto text-sm">
-          {branding?.aboutText ??
-            "Discover personalized astrology guidance, predictions, palm reading and consultations."}
-        </p>
-        <div className="flex justify-center gap-4 pt-4 flex-wrap">
-          <Link href="/astrologers" className="btn-primary">Chat with an Astrologer</Link>
-          <Link href="/predictions" className="btn-secondary">Get a Prediction</Link>
+      <section className="relative overflow-hidden text-center space-y-6 py-16 rounded-3xl bg-gradient-to-b from-orange-100 via-orange-50 to-transparent -mt-4 px-4">
+        <div className="glow-orb w-72 h-72 bg-brand/30 -top-20 -left-10 animate-pulse-slow" />
+        <div className="glow-orb w-80 h-80 bg-gold/25 -top-10 -right-16 animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
+        <div className="relative">
+          <h1 className="text-5xl md:text-7xl font-extrabold text-gradient-brand tracking-tight animate-fade-up">
+            {branding?.appName ?? "ASTRO"}
+          </h1>
+          <p className="text-lg text-slate-700 max-w-2xl mx-auto font-medium mt-5 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+            {branding?.tagline ?? "Your stars, decoded."}
+          </p>
+          <p className="text-slate-500 max-w-xl mx-auto text-sm mt-3 animate-fade-up" style={{ animationDelay: "0.2s" }}>
+            {branding?.aboutText ??
+              "Discover personalized astrology guidance, predictions, palm reading and consultations."}
+          </p>
+          <div className="flex justify-center gap-4 pt-6 flex-wrap animate-fade-up" style={{ animationDelay: "0.3s" }}>
+            <Link href="/astrologers" className="btn-primary">Chat with an Astrologer</Link>
+            <Link href="/predictions" className="btn-secondary">Get a Prediction</Link>
+          </div>
         </div>
       </section>
 
@@ -113,7 +117,7 @@ export default function HomePage() {
               <div className="flex items-start gap-4">
                 <div className="relative shrink-0">
                   <Image src={a.photoUrl} alt={a.name} width={56} height={56} className="rounded-full bg-orange-50 object-cover w-14 h-14" unoptimized />
-                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
+                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow-[0_0_6px_rgba(34,197,94,0.8)]" />
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-slate-800 truncate">{a.name}</p>

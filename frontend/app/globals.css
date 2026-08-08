@@ -3,21 +3,65 @@
 @tailwind utilities;
 
 body {
-  @apply bg-cream text-slate-800 min-h-screen;
+  @apply text-slate-800 min-h-screen;
+  background-color: #fff7ed;
+  background-image: radial-gradient(circle at 12% 8%, rgba(255, 159, 77, 0.16), transparent 42%),
+    radial-gradient(circle at 88% 4%, rgba(245, 185, 66, 0.14), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgba(232, 89, 12, 0.06), transparent 55%);
+  background-attachment: fixed;
 }
 
 .card {
-  @apply bg-white border border-orange-100 rounded-2xl shadow-sm shadow-orange-900/5;
+  @apply bg-white/90 border border-orange-100 rounded-2xl shadow-card backdrop-blur-sm transition-all duration-300;
+}
+
+a.card:hover,
+.card-interactive:hover {
+  @apply shadow-card-hover border-brand/30;
+  transform: translateY(-3px);
 }
 
 .btn-primary {
-  @apply bg-brand hover:bg-brand-dark text-white font-semibold rounded-full px-5 py-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-orange-900/20;
+  @apply text-white font-semibold rounded-full px-5 py-2.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
+  background-image: linear-gradient(135deg, #ff9f4d, #ff7a1a 45%, #e8590c);
+  box-shadow: 0 8px 24px -8px rgba(232, 89, 12, 0.55);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 10px 30px -6px rgba(232, 89, 12, 0.65);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  @apply bg-orange-50 hover:bg-orange-100 text-brand-dark font-semibold rounded-full px-5 py-2.5 transition-colors disabled:opacity-50 border border-orange-200;
+  @apply bg-orange-50 hover:bg-orange-100 text-brand-dark font-semibold rounded-full px-5 py-2.5 transition-all duration-200 disabled:opacity-50 border border-orange-200;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 .input {
-  @apply w-full bg-white border border-orange-200 rounded-xl px-3 py-2 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand;
+  @apply w-full bg-white border border-orange-200 rounded-xl px-3 py-2 text-slate-800 placeholder:text-slate-400 transition-shadow duration-200;
+}
+
+.input:focus {
+  @apply outline-none border-brand;
+  box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.18);
+}
+
+/* Gradient text for hero-style headings */
+.text-gradient-brand {
+  background-image: linear-gradient(120deg, #e8590c, #ff7a1a 40%, #f5b942);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft blurred glow orbs used behind hero/section backgrounds */
+.glow-orb {
+  @apply pointer-events-none absolute rounded-full blur-3xl;
 }

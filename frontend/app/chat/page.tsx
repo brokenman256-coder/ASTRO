@@ -28,6 +28,7 @@ export default function ChatLandingPage() {
   const [recent, setRecent] = useState<ConversationSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState<string | null>(null);
+  const [quickStartError, setQuickStartError] = useState<{ astrologerId: string; message: string; needsFunds: boolean } | null>(null);
 
   useEffect(() => {
     const token = getUserToken();
@@ -49,9 +50,13 @@ export default function ChatLandingPage() {
       return;
     }
     setStarting(astrologerId);
+    setQuickStartError(null);
     try {
       const data = await apiPost("/conversations", { astrologerId }, token);
       router.push(`/chat/${data.conversation.id}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unable to start consultation. Please try again.";
+      setQuickStartError({ astrologerId, message, needsFunds: message.toLowerCase().includes("add funds") });
     } finally {
       setStarting(null);
     }
@@ -86,19 +91,31 @@ export default function ChatLandingPage() {
         {loading && <p className="text-slate-400">Loading...</p>}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {astrologers.map((a) => (
-            <div key={a.id} className="card p-4 flex items-center gap-3">
-              <Image src={a.photoUrl} alt={a.name} width={48} height={48} className="rounded-full w-12 h-12 object-cover bg-orange-50" unoptimized />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-slate-800 truncate">{a.name}</p>
-                <p className="text-xs text-slate-500 truncate">{a.specialty} · ★ {a.rating.toFixed(1)}</p>
+            <div key={a.id} className="card p-4 flex flex-col gap-2">
+              <div className="flex items-center gap-3">
+                <Image src={a.photoUrl} alt={a.name} width={48} height={48} className="rounded-full w-12 h-12 object-cover bg-orange-50" unoptimized />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-slate-800 truncate">{a.name}</p>
+                  <p className="text-xs text-slate-500 truncate">{a.specialty} · ★ {a.rating.toFixed(1)}</p>
+                </div>
+                <button
+                  className="btn-secondary !py-1.5 !px-3 text-xs shrink-0"
+                  onClick={() => quickStart(a.id)}
+                  disabled={starting === a.id}
+                >
+                  {starting === a.id ? "..." : "Chat"}
+                </button>
               </div>
-              <button
-                className="btn-secondary !py-1.5 !px-3 text-xs shrink-0"
-                onClick={() => quickStart(a.id)}
-                disabled={starting === a.id}
-              >
-                {starting === a.id ? "..." : "Chat"}
-              </button>
+              {quickStartError?.astrologerId === a.id && (
+                <div className="text-xs space-y-1.5 border-t border-orange-100 pt-2">
+                  <p className="text-red-600">{quickStartError.message}</p>
+                  {quickStartError.needsFunds && (
+                    <Link href="/wallet" className="btn-secondary inline-block !py-1 !px-2.5 text-[11px]">
+                      Add Funds to Wallet
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

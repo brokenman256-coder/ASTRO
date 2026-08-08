@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { apiGet, apiPost } from "@/lib/api";
 import { getUserToken } from "@/lib/session";
@@ -29,12 +30,17 @@ export default function AstrologerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState("");
+  const [needsFunds, setNeedsFunds] = useState(false);
+  const [minSessionMinutes, setMinSessionMinutes] = useState(5);
 
   useEffect(() => {
     apiGet(`/astrologers/${params.id}`)
       .then((d) => setAstrologer(d.astrologer))
       .catch(() => setAstrologer(null))
       .finally(() => setLoading(false));
+    apiGet("/wallet/payment-settings")
+      .then((d) => setMinSessionMinutes(d.minSessionMinutes))
+      .catch(() => {});
   }, [params.id]);
 
   async function handleStartConsultation() {
@@ -45,11 +51,14 @@ export default function AstrologerProfilePage() {
     }
     setStarting(true);
     setError("");
+    setNeedsFunds(false);
     try {
       const data = await apiPost("/conversations", { astrologerId: params.id }, token);
       router.push(`/chat/${data.conversation.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to start consultation. Please try again.");
+      const message = err instanceof Error ? err.message : "Unable to start consultation. Please try again.";
+      setError(message);
+      setNeedsFunds(message.toLowerCase().includes("add funds"));
       setStarting(false);
     }
   }
@@ -98,8 +107,20 @@ export default function AstrologerProfilePage() {
         <div>
           <p className="text-sm text-slate-500">Consultation price</p>
           <p className="text-xl font-bold text-slate-800">₹{astrologer.priceRupeesPerMinute}/min</p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            ₹{astrologer.priceRupeesPerMinute * minSessionMinutes} minimum for a {minSessionMinutes}-min session
+          </p>
         </div>
-        {error && <p className="text-red-600 text-sm w-full">{error}</p>}
+        {error && (
+          <div className="text-sm w-full space-y-2">
+            <p className="text-red-600">{error}</p>
+            {needsFunds && (
+              <Link href="/wallet" className="btn-secondary inline-block !py-1.5 !px-3 text-xs">
+                Add Funds to Wallet
+              </Link>
+            )}
+          </div>
+        )}
         <button className="btn-primary" onClick={handleStartConsultation} disabled={starting}>
           {starting ? "Connecting..." : "Chat Now"}
         </button>
