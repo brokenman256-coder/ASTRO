@@ -2,12 +2,13 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { requireUser, AuthedRequest } from "../middleware/auth";
+import { requireUser, requireAdmin, AuthedRequest } from "../middleware/auth";
 import {
   startOrResumeConversation,
   getOwnedConversation,
   sendMessage,
   endConversation,
+  injectAdminMessage,
   SessionEndedError,
   DailyLimitError,
   InsufficientBalanceError,
@@ -54,6 +55,54 @@ conversationsRouter.post("/", requireUser, async (req: AuthedRequest, res) => {
       return res.status(402).json({ error: err.message, insufficientBalance: true });
     }
     res.status(404).json({ error: "Astrologer not found" });
+  }
+});
+
+// ---- Admin: live-chat oversight ----
+// Lets an admin watch active consultations and, if needed, direct the
+// astrologer's next message - the AI formalizes the admin's casual note
+// into an in-character reply, same pattern as guided predictions. These
+// routes must come before the generic "/:id" route below, or Express would
+// try to treat "admin" as a conversation id.
+
+conversationsRouter.get("/admin/active", requireAdmin, async (_req, res) => {
+  const conversations = await prisma.conversation.findMany({
+    where: { status: "ACTIVE" },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      astrologer: { select: { id: true, name: true, photoUrl: true } },
+      user: { select: { id: true, name: true, email: true } },
+    },
+  });
+  res.json({ conversations });
+});
+
+conversationsRouter.get("/admin/:id", requireAdmin, async (req, res) => {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: req.params.id },
+    include: { astrologer: true, user: { select: { id: true, name: true, email: true } } },
+  });
+  if (!conversation) return res.status(404).json({ error: "Conversation not found" });
+  const messages = await prisma.message.findMany({
+    where: { conversationId: conversation.id },
+    orderBy: { createdAt: "asc" },
+  });
+  res.json({ conversation, messages });
+});
+
+const injectSchema = z.object({ directive: z.string().min(1).max(1000) });
+
+conversationsRouter.post("/admin/:id/inject", requireAdmin, async (req, res) => {
+  const parsed = injectSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "directive is required" });
+  try {
+    const result = await injectAdminMessage(req.params.id, parsed.data.directive);
+    res.status(201).json(result);
+  } catch (err) {
+    if (err instanceof Error && err.message === "Conversation not found") {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+    throw err;
   }
 });
 

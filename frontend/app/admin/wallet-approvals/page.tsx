@@ -24,6 +24,7 @@ interface Scheme {
   label: string;
   minAmountPaise: number;
   bonusPercent: number;
+  isFirstTimeOnly: boolean;
   active: boolean;
 }
 
@@ -38,7 +39,7 @@ export default function WalletApprovalsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [schemes, setSchemes] = useState<Scheme[]>([]);
-  const [newScheme, setNewScheme] = useState({ label: "", minAmountPaise: 50000, bonusPercent: 10 });
+  const [newScheme, setNewScheme] = useState({ label: "", minAmountPaise: 50000, bonusPercent: 10, isFirstTimeOnly: false });
   const [schemeBusy, setSchemeBusy] = useState(false);
   const token = getAdminToken();
 
@@ -65,7 +66,7 @@ export default function WalletApprovalsPage() {
     setSchemeBusy(true);
     try {
       await apiPost("/wallet/admin/schemes", newScheme, token);
-      setNewScheme({ label: "", minAmountPaise: 50000, bonusPercent: 10 });
+      setNewScheme({ label: "", minAmountPaise: 50000, bonusPercent: 10, isFirstTimeOnly: false });
       await refreshSchemes();
     } finally {
       setSchemeBusy(false);
@@ -187,7 +188,12 @@ export default function WalletApprovalsPage() {
           {schemes.map((s) => (
             <div key={s.id} className="flex items-center justify-between gap-3 border-b border-orange-100 py-2">
               <div>
-                <p className="text-sm font-medium">{s.label} - +{s.bonusPercent}%</p>
+                <p className="text-sm font-medium">
+                  {s.label} - +{s.bonusPercent}%
+                  {s.isFirstTimeOnly && (
+                    <span className="ml-2 text-[10px] uppercase tracking-wide text-gold-foil font-bold">First recharge only</span>
+                  )}
+                </p>
                 <p className="text-xs text-slate-500">On recharges of ₹{(s.minAmountPaise / 100).toFixed(0)}+</p>
               </div>
               <div className="flex gap-2 shrink-0">
@@ -236,11 +242,19 @@ export default function WalletApprovalsPage() {
               className="input"
               type="number"
               min={1}
-              max={100}
+              max={200}
               value={newScheme.bonusPercent}
               onChange={(e) => setNewScheme({ ...newScheme, bonusPercent: Number(e.target.value) })}
             />
           </div>
+          <label className="flex items-center gap-2 text-sm text-slate-600 sm:col-span-3">
+            <input
+              type="checkbox"
+              checked={newScheme.isFirstTimeOnly}
+              onChange={(e) => setNewScheme({ ...newScheme, isFirstTimeOnly: e.target.checked })}
+            />
+            Only applies to a user&apos;s first-ever approved recharge (e.g. a first-time double bonus)
+          </label>
           <button className="btn-primary sm:col-span-3" disabled={schemeBusy}>
             Add Scheme
           </button>

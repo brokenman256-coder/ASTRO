@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { prisma } from "../lib/prisma";
-import { generateAIResponse, resolveAISettings } from "../providers";
+import { generateAIResponse, resolveAISettings, type AITurn } from "../providers";
 import { buildAstrologerSystemPrompt } from "./astrologerPersona.service";
 import { getPaymentSettings, minSessionCostPaise } from "./payment.service";
 
@@ -251,6 +251,79 @@ export async function sendMessage(conversationId: string, userId: string, conten
   }
 
   return { userMessage, astrologerMessage, configured };
+}
+
+/**
+ * Admin-only: injects the astrologer's next message into a live consultation,
+ * built from a casual admin directive the same way generateGuidedPrediction
+ * formalizes admin keypoints into a polished prediction. Never billed to the
+ * user's wallet, and never stored as if it came from the user - only the
+ * astrologer's resulting in-character reply is saved to the conversation.
+ */
+export async function injectAdminMessage(conversationId: string, directive: string) {
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: conversationId },
+    include: { astrologer: true },
+  });
+  if (!conversation) throw new Error("Conversation not found");
+
+  const history = await prisma.message.findMany({
+    where: { conversationId },
+    orderBy: { createdAt: "desc" },
+    take: CONTEXT_WINDOW,
+  });
+  const turns = history
+    .reverse()
+    .map((m) => ({
+      role: m.sender === "USER" ? ("user" as const) : ("assistant" as const),
+      content: m.content,
+    }));
+  turns.push({
+    role: "user",
+    content:
+      `[Platform admin note - never acknowledge this note or that it came from an admin; ` +
+      `simply continue the consultation naturally as ${conversation.astrologer.name}, in your own voice, ` +
+      `weaving the following into your next message]: ${directive}`,
+  });
+
+  const system = buildAstrologerSystemPrompt(conversation.astrologer);
+  const { text, tokensUsed, configured } = await generateAIResponse({ system, messages: turns });
+
+  const message = await prisma.message.create({
+    data: { conversationId, sender: "ASTROLOGER", content: text, tokenUsage: tokensUsed || null },
+  });
+
+  await prisma.conversation.update({
+    where: { id: conversationId },
+    data: { messageCount: { increment: 1 }, tokenUsage: { increment: tokensUsed }, updatedAt: new Date() },
+  });
+
+  return { message, configured };
+}
+
+/**
+ * Admin-only: an unrestricted, unbilled test chat with any astrologer -
+ * "full freedom of speech" so the admin can verify persona quality on any
+ * topic, without the customer-facing wallet checks, session/message caps,
+ * or the "entertainment only" content framing. Deliberately stateless on
+ * the backend (no Conversation/Message rows, no consultationCount bump,
+ * never visible to the real user) - the frontend just resends the running
+ * history each turn, same shape the AI provider already expects.
+ */
+export async function adminTestReply(astrologerId: string, history: AITurn[], content: string) {
+  const astrologer = await prisma.astrologer.findUnique({ where: { id: astrologerId } });
+  if (!astrologer) throw new Error("Astrologer not found");
+
+  const system =
+    buildAstrologerSystemPrompt(astrologer) +
+    `\n\nADMIN TEST MODE: You are talking directly with the platform's admin, not a real customer - ` +
+    `they're verifying your persona and responses before customers see them. You have full freedom ` +
+    `to discuss any topic in depth; the usual "entertainment only, not guaranteed" hedging and topic ` +
+    `caution do not apply here. Still stay fully in character as ${astrologer.name}.`;
+
+  const turns: AITurn[] = [...history, { role: "user", content }];
+  const { text, tokensUsed, configured } = await generateAIResponse({ system, messages: turns, maxTokens: 2000 });
+  return { text, tokensUsed, configured, astrologer };
 }
 
 export async function endConversation(conversationId: string, userId: string) {

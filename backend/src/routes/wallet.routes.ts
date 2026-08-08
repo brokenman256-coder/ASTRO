@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { requireUser, requireAdmin, AuthedRequest } from "../middleware/auth";
+import { requireUser, requireAdmin, optionalUser, AuthedRequest } from "../middleware/auth";
 import { buildTopupQr } from "../services/wallet.service";
 import { getPaymentSettings } from "../services/payment.service";
 
@@ -24,13 +24,30 @@ walletRouter.get("/payment-settings", async (_req, res) => {
 });
 
 // Public, read-only: active recharge bonus tiers, shown as promo cards on
-// the wallet page to encourage bigger top-ups.
-walletRouter.get("/schemes", async (_req, res) => {
+// the wallet page to encourage bigger top-ups. When the caller is logged
+// in, each scheme is annotated with whether they can actually claim it -
+// first-time-only schemes only apply before a user's first approved
+// top-up - so the UI never advertises a bonus that won't be honored.
+walletRouter.get("/schemes", optionalUser, async (req: AuthedRequest, res) => {
   const schemes = await prisma.rechargeScheme.findMany({
     where: { active: true },
     orderBy: { minAmountPaise: "asc" },
   });
-  res.json({ schemes });
+
+  let hasRecharged = true; // default: hide first-time offers from logged-out visitors
+  if (req.user) {
+    const priorApproved = await prisma.walletTransaction.findFirst({
+      where: { userId: req.user.sub, status: "APPROVED" },
+      select: { id: true },
+    });
+    hasRecharged = Boolean(priorApproved);
+  }
+
+  const annotated = schemes.map((s) => ({
+    ...s,
+    eligible: !s.isFirstTimeOnly || !hasRecharged,
+  }));
+  res.json({ schemes: annotated });
 });
 
 const topupSchema = z.object({ amountPaise: z.number().int().max(500000) });
@@ -91,14 +108,25 @@ walletRouter.post("/admin/:id/approve", requireAdmin, async (req: AuthedRequest,
   if (!tx) return res.status(404).json({ error: "Transaction not found" });
   if (tx.status !== "PENDING") return res.status(409).json({ error: "Transaction already reviewed" });
 
-  // Apply the best-matching active recharge scheme (highest minimum this
-  // amount still qualifies for) as a bonus credited on top of the amount.
-  const eligibleSchemes = await prisma.rechargeScheme.findMany({
-    where: { active: true, minAmountPaise: { lte: tx.amount } },
-    orderBy: { minAmountPaise: "desc" },
+  // Apply whichever active scheme gives the biggest bonus this transaction
+  // qualifies for - including first-time-only schemes (e.g. a first-recharge
+  // double bonus), but only if this is genuinely this user's first approval.
+  const priorApproved = await prisma.walletTransaction.findFirst({
+    where: { userId: tx.userId, status: "APPROVED" },
+    select: { id: true },
+  });
+  const isFirstRecharge = !priorApproved;
+
+  const candidateSchemes = await prisma.rechargeScheme.findMany({
+    where: {
+      active: true,
+      minAmountPaise: { lte: tx.amount },
+      ...(isFirstRecharge ? {} : { isFirstTimeOnly: false }),
+    },
+    orderBy: { bonusPercent: "desc" },
     take: 1,
   });
-  const scheme = eligibleSchemes[0];
+  const scheme = candidateSchemes[0];
   const bonusPaise = scheme ? Math.floor((tx.amount * scheme.bonusPercent) / 100) : 0;
   const note = scheme ? `+${scheme.bonusPercent}% bonus applied (${scheme.label})` : tx.note;
 
@@ -164,7 +192,8 @@ walletRouter.get("/admin/schemes", requireAdmin, async (_req, res) => {
 const schemeSchema = z.object({
   label: z.string().min(1).max(60),
   minAmountPaise: z.number().int().min(100).max(500000),
-  bonusPercent: z.number().int().min(1).max(100),
+  bonusPercent: z.number().int().min(1).max(200),
+  isFirstTimeOnly: z.boolean().optional(),
 });
 
 walletRouter.post("/admin/schemes", requireAdmin, async (req, res) => {

@@ -183,7 +183,7 @@ model AstrologerBotSettings {
   // for a random batch of existing active astrologers, independent of the
   // add/prune cadence above - keeps the roster feeling "alive" over time.
   refreshEnabled         Boolean   @default(true)
-  refreshIntervalMinutes Int       @default(30)
+  refreshIntervalMinutes Int       @default(10)
   refreshBatchSize       Int       @default(5)
   lastRefreshAt          DateTime?
 
@@ -227,6 +227,7 @@ model RechargeScheme {
   label          String
   minAmountPaise Int
   bonusPercent   Int // whole percent, e.g. 10 = +10%
+  isFirstTimeOnly Boolean @default(false) // only applies to a user's first-ever approved top-up
   active         Boolean  @default(true)
   createdAt      DateTime @default(now())
 }

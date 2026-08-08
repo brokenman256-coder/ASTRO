@@ -10,6 +10,8 @@ const LINKS = [
   { href: "/admin/users", label: "Users" },
   { href: "/admin/astrologers", label: "Astrologers" },
   { href: "/admin/guided-predictions", label: "Guided Predictions" },
+  { href: "/admin/live-chats", label: "Live Chats" },
+  { href: "/admin/test-chat", label: "Test Chat" },
   { href: "/admin/ai-settings", label: "AI Settings" },
   { href: "/admin/wallet-approvals", label: "Payments" },
   { href: "/admin/password-resets", label: "Password Resets" },

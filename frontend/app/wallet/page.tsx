@@ -20,6 +20,8 @@ interface Scheme {
   label: string;
   minAmountPaise: number;
   bonusPercent: number;
+  isFirstTimeOnly: boolean;
+  eligible: boolean;
 }
 
 function rupees(paise: number) {
@@ -111,12 +113,12 @@ export default function WalletPage() {
       </div>
 
       {/* Offers - the primary way to pick an amount */}
-      {schemes.length > 0 && (
+      {schemes.filter((s) => s.eligible).length > 0 && (
         <section>
           <h2 className="font-display text-lg font-bold text-navy text-center mb-1">Recharge Offers</h2>
           <p className="text-xs text-slate-500 text-center mb-4">Pick an offer, or enter your own amount below</p>
           <div className="grid sm:grid-cols-3 gap-3">
-            {schemes.map((s) => {
+            {schemes.filter((s) => s.eligible).map((s) => {
               const selected = selectedSchemeId === s.id;
               return (
                 <button
@@ -127,10 +129,16 @@ export default function WalletPage() {
                     setAmount((s.minAmountPaise / 100).toFixed(0));
                   }}
                   className={
-                    "card-royal p-4 text-left transition-all " +
-                    (selected ? "ring-2 ring-maroon" : "hover:-translate-y-0.5")
+                    "card-royal p-4 text-left transition-all relative overflow-hidden " +
+                    (selected ? "ring-2 ring-maroon" : "hover:-translate-y-0.5") +
+                    (s.isFirstTimeOnly ? " ring-1 ring-gold/60 shadow-glow" : "")
                   }
                 >
+                  {s.isFirstTimeOnly && (
+                    <span className="absolute top-0 right-0 bg-maroon text-gold-foil text-[9px] font-bold uppercase tracking-wide px-2 py-1 rounded-bl-lg">
+                      New user
+                    </span>
+                  )}
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-maroon">{s.label}</p>
                   <p className="text-gold-foil text-2xl font-display font-bold mt-1">+{s.bonusPercent}%</p>
                   <p className="text-xs text-slate-500 mt-1">bonus on ₹{(s.minAmountPaise / 100).toFixed(0)}+</p>

@@ -7,6 +7,7 @@ import {
   botPruneAstrologers,
   bulkSeedAstrologers,
 } from "../services/astrologerBot.service";
+import { adminTestReply } from "../services/conversation.service";
 
 export const astrologersRouter = Router();
 
@@ -107,6 +108,35 @@ astrologersRouter.delete("/admin/:id", requireAdmin, async (req, res) => {
     data: { active: false, retiredAt: new Date() },
   });
   res.json({ ok: true });
+});
+
+// ---- Admin: unrestricted test chat ----
+// Lets the admin verify an astrologer's persona/responses directly, with no
+// wallet billing, no session/message caps, and no topic restrictions -
+// deliberately stateless server-side (see adminTestReply), so nothing here
+// touches real conversation data or consultation counts.
+
+const testChatTurnSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().min(1),
+});
+const testChatSchema = z.object({
+  history: z.array(testChatTurnSchema).max(50).optional(),
+  content: z.string().min(1).max(2000),
+});
+
+astrologersRouter.post("/admin/:id/test-chat", requireAdmin, async (req, res) => {
+  const parsed = testChatSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
+  try {
+    const result = await adminTestReply(req.params.id, parsed.data.history ?? [], parsed.data.content);
+    res.json(result);
+  } catch (err) {
+    if (err instanceof Error && err.message === "Astrologer not found") {
+      return res.status(404).json({ error: "Astrologer not found" });
+    }
+    throw err;
+  }
 });
 
 // ---- Astrologer roster bot ----
