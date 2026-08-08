@@ -1,53 +1,58 @@
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 
-function authHeaders(token?: string | null): Record<string, string> {
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
+// Auth is cookie-based (httpOnly session cookies set by the backend) -
+// credentials: "include" makes the browser send/accept those cookies even
+// though the frontend and backend live on different Netlify subdomains.
+// The `token` parameter some callers still pass is legacy and unused; kept
+// only so existing call sites don't all need to change their signatures.
 
-export async function apiGet(path: string, token?: string | null) {
-  const res = await fetch(`${API_URL}${path}`, { headers: authHeaders(token) });
+export async function apiGet(path: string, _token?: string | null) {
+  const res = await fetch(`${API_URL}${path}`, { credentials: "include" });
   return handle(res);
 }
 
-export async function apiPost(path: string, body?: unknown, token?: string | null) {
+export async function apiPost(path: string, body?: unknown, _token?: string | null) {
   const res = await fetch(`${API_URL}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders(token) },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   return handle(res);
 }
 
-export async function apiPatch(path: string, body: unknown, token?: string | null) {
+export async function apiPatch(path: string, body: unknown, _token?: string | null) {
   const res = await fetch(`${API_URL}${path}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders(token) },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   return handle(res);
 }
 
-export async function apiPut(path: string, body: unknown, token?: string | null) {
+export async function apiPut(path: string, body: unknown, _token?: string | null) {
   const res = await fetch(`${API_URL}${path}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeaders(token) },
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   return handle(res);
 }
 
-export async function apiDelete(path: string, token?: string | null) {
+export async function apiDelete(path: string, _token?: string | null) {
   const res = await fetch(`${API_URL}${path}`, {
     method: "DELETE",
-    headers: authHeaders(token),
+    credentials: "include",
   });
   return handle(res);
 }
 
-export async function apiUpload(path: string, formData: FormData, token?: string | null) {
+export async function apiUpload(path: string, formData: FormData, _token?: string | null) {
   const res = await fetch(`${API_URL}${path}`, {
     method: "POST",
-    headers: authHeaders(token),
+    credentials: "include",
     body: formData,
   });
   return handle(res);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { apiPost } from "@/lib/api";
 import { clearAdminToken } from "@/lib/session";
 
 const LINKS = [
@@ -38,7 +39,8 @@ export default function AdminNav() {
       })}
       <button
         className="ml-auto text-sm text-slate-500 hover:text-red-600"
-        onClick={() => {
+        onClick={async () => {
+          await apiPost("/auth/admin/logout").catch(() => {});
           clearAdminToken();
           router.push("/");
         }}

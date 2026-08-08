@@ -5,10 +5,23 @@ import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { env } from "../lib/env";
-import { hashPassword, verifyPassword, signUserToken, signAdminToken } from "../lib/auth";
-import { requireAdmin, AuthedRequest } from "../middleware/auth";
+import {
+  hashPassword,
+  verifyPassword,
+  signUserToken,
+  signAdminToken,
+  USER_COOKIE,
+  ADMIN_COOKIE,
+  userCookieOptions,
+  adminCookieOptions,
+} from "../lib/auth";
+import { requireAdmin, requireUser, AuthedRequest } from "../middleware/auth";
 
 export const authRouter = Router();
+
+function publicUser(user: { id: string; name: string; email: string; phone: string | null; dob: Date | null }) {
+  return { id: user.id, name: user.name, email: user.email, phone: user.phone, dob: user.dob };
+}
 
 // ---------- User auth ----------
 
@@ -16,20 +29,25 @@ const signupSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().email(),
   password: z.string().min(6).max(200),
+  phone: z.string().min(7).max(20),
+  dob: z.string().refine((v) => !Number.isNaN(Date.parse(v)), "Invalid date of birth"),
 });
 
 authRouter.post("/signup", async (req, res) => {
   const parsed = signupSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
-  const { name, email, password } = parsed.data;
+  const { name, email, password, phone, dob } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return res.status(409).json({ error: "An account with this email already exists" });
 
   const passwordHash = await hashPassword(password);
-  const user = await prisma.user.create({ data: { name, email, passwordHash } });
+  const user = await prisma.user.create({
+    data: { name, email, passwordHash, phone, dob: new Date(dob) },
+  });
   const token = signUserToken({ sub: user.id, email: user.email, role: "user" });
-  res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
+  res.cookie(USER_COOKIE, token, userCookieOptions());
+  res.status(201).json({ user: publicUser(user) });
 });
 
 const loginSchema = z.object({
@@ -48,7 +66,19 @@ authRouter.post("/login", async (req, res) => {
   if (!ok) return res.status(401).json({ error: "Invalid email or password" });
 
   const token = signUserToken({ sub: user.id, email: user.email, role: "user" });
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+  res.cookie(USER_COOKIE, token, userCookieOptions());
+  res.json({ user: publicUser(user) });
+});
+
+authRouter.get("/me", requireUser, async (req: AuthedRequest, res) => {
+  const user = await prisma.user.findUnique({ where: { id: req.user!.sub } });
+  if (!user) return res.status(404).json({ error: "User not found" });
+  res.json({ user: publicUser(user) });
+});
+
+authRouter.post("/logout", (_req, res) => {
+  res.clearCookie(USER_COOKIE, { path: "/" });
+  res.json({ ok: true });
 });
 
 // ---------- Secret admin passage ----------
@@ -110,7 +140,19 @@ authRouter.post("/admin/login", adminLoginLimiter, async (req, res) => {
   if (!ok) return res.status(401).json({ error: "Invalid admin credentials" });
 
   const token = signAdminToken({ sub: admin.id, username: admin.username, role: "admin" });
-  res.json({ token, admin: { id: admin.id, username: admin.username } });
+  res.cookie(ADMIN_COOKIE, token, adminCookieOptions());
+  res.json({ admin: { id: admin.id, username: admin.username } });
+});
+
+authRouter.get("/admin/me", requireAdmin, async (req: AuthedRequest, res) => {
+  const admin = await prisma.admin.findUnique({ where: { id: req.admin!.sub } });
+  if (!admin) return res.status(404).json({ error: "Admin not found" });
+  res.json({ admin: { id: admin.id, username: admin.username } });
+});
+
+authRouter.post("/admin/logout", (_req, res) => {
+  res.clearCookie(ADMIN_COOKIE, { path: "/" });
+  res.json({ ok: true });
 });
 
 // Self-service credential change: requires a valid admin session AND the

@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { env } from "./lib/env";
 import { authRouter } from "./routes/auth.routes";
 import { astrologersRouter } from "./routes/astrologers.routes";
@@ -23,8 +24,9 @@ import { adminAIRouter } from "./routes/adminAI.routes";
 export function createApp() {
   const app = express();
 
-  app.use(cors({ origin: env.corsOrigin }));
+  app.use(cors({ origin: env.corsOrigin, credentials: true }));
   app.use(express.json({ limit: "1mb" }));
+  app.use(cookieParser());
 
   app.get("/health", (_req, res) => res.json({ ok: true }));
 

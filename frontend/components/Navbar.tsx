@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { apiPost } from "@/lib/api";
 import { clearUserSession, getUserInfo } from "@/lib/session";
 
 const NAV_LINKS = [
@@ -28,7 +29,8 @@ export default function Navbar() {
     setOpen(false);
   }, [pathname]);
 
-  function handleLogout() {
+  async function handleLogout() {
+    await apiPost("/auth/logout").catch(() => {});
     clearUserSession();
     window.location.href = "/";
   }

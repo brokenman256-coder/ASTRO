@@ -18,7 +18,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const data = await apiPost("/auth/login", { email, password });
-      setUserSession(data.token, data.user);
+      setUserSession(data.user);
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

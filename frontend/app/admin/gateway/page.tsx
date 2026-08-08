@@ -23,7 +23,7 @@ export default function AdminGatewayPage() {
     setLoading(true);
     try {
       const data = await apiPost("/auth/admin/login", { gatewayToken, username, password });
-      setAdminToken(data.token);
+      setAdminToken(data.admin);
       sessionStorage.removeItem("astro_admin_gateway_token");
       router.push("/admin");
     } catch (err) {

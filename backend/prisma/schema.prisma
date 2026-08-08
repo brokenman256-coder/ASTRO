@@ -12,6 +12,8 @@ model User {
   id            String              @id @default(uuid())
   name          String
   email         String              @unique
+  phone         String?
+  dob           DateTime?
   passwordHash  String
   walletBalance Int                 @default(0) // stored in paise (1/100 currency unit)
   createdAt     DateTime            @default(now())

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { apiGet } from "@/lib/api";
-import { clearUserSession, getUserInfo, getUserToken } from "@/lib/session";
+import { apiGet, apiPost } from "@/lib/api";
+import { clearUserSession, setUserSession } from "@/lib/session";
 
 interface ConversationSummary {
   id: string;
@@ -16,24 +16,39 @@ interface ConversationSummary {
   astrologer: { id: string; name: string; photoUrl: string; specialty: string };
 }
 
+interface FullUser {
+  name: string;
+  email: string;
+  phone: string | null;
+  dob: string | null;
+}
+
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<FullUser | null>(null);
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getUserToken();
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    setUser(getUserInfo());
-    apiGet("/conversations", token)
+    apiGet("/auth/me")
+      .then((d) => {
+        setUser(d.user);
+        setUserSession(d.user);
+      })
+      .catch(() => {
+        router.push("/login");
+      });
+    apiGet("/conversations")
       .then((d) => setConversations(d.conversations))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [router]);
+
+  async function handleLogout() {
+    await apiPost("/auth/logout").catch(() => {});
+    clearUserSession();
+    router.push("/");
+  }
 
   if (!user) return null;
 
@@ -45,13 +60,11 @@ export default function ProfilePage() {
         </div>
         <h1 className="text-2xl font-bold text-slate-800 mt-4">{user.name}</h1>
         <p className="text-sm text-slate-500">{user.email}</p>
-        <button
-          className="btn-secondary mt-4 !py-1.5 !px-4 text-sm"
-          onClick={() => {
-            clearUserSession();
-            router.push("/");
-          }}
-        >
+        <div className="flex justify-center gap-4 text-xs text-slate-400 mt-2">
+          {user.phone && <span>{user.phone}</span>}
+          {user.dob && <span>Born {new Date(user.dob).toLocaleDateString()}</span>}
+        </div>
+        <button className="btn-secondary mt-4 !py-1.5 !px-4 text-sm" onClick={handleLogout}>
           Log out
         </button>
       </div>
