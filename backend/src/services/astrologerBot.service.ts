@@ -86,6 +86,16 @@ const BIO_TEMPLATES = [
   "specializes in {specialty} with a calm, practical approach that clients trust for life's big decisions.",
 ];
 
+// Every astrologer opens a fresh consultation with a warm "Namaste" - the
+// traditional greeting fits the platform's astrology context and gives the
+// chat a consistent, welcoming first moment across the whole roster.
+const GREETING_TEMPLATES = [
+  "Namaste. I'm {name} - tell me what's been on your mind lately.",
+  "Namaste, and welcome. I'm {name}. What would you like to explore today?",
+  "Namaste! I'm {name}, here to help you find some clarity. Where shall we begin?",
+  "Namaste. I'm {name} - share what's troubling you, and let's look at it together.",
+];
+
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -113,6 +123,7 @@ export function generateAstrologerProfile() {
     .replace("{specialty}", specialty);
   const name = `${first.name} ${last}`;
   const age = 20 + experienceYears + Math.floor(Math.random() * 3);
+  const greeting = pick(GREETING_TEMPLATES).replace("{name}", first.name);
   return {
     name,
     gender: first.gender,
@@ -121,6 +132,7 @@ export function generateAstrologerProfile() {
     experienceYears,
     rating,
     languages: pickLanguages(),
+    greeting,
     bio: `${name} ${bioTemplate}`,
     // Real (licensed-for-any-use) human portrait photos, not a cartoon
     // avatar - free, instant, no API key. Used whenever OPENAI_API_KEY
@@ -200,6 +212,7 @@ export async function bulkSeedAstrologers(count: number) {
     experienceYears: number;
     rating: number;
     languages: string[];
+    greeting: string;
     bio: string;
     photoUrl: string;
     source: "BOT";

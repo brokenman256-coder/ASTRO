@@ -21,6 +21,7 @@ model User {
   predictions   Prediction[]
   palmReadings  PalmReading[]
   remedies      Remedy[]
+  tarotReadings TarotReading[]
   chatMessages  ChatMessage[]
   conversations Conversation[]
   usageRecords  UsageRecord[]
@@ -79,7 +80,7 @@ model Astrologer {
   personality          String   @default("Warm, thoughtful, and attentive.")
   tone                 String   @default("Conversational and reassuring")
   languages            String[] @default(["English"])
-  greeting             String   @default("Welcome. Tell me what has been on your mind lately.")
+  greeting             String   @default("Namaste. Tell me what has been on your mind lately.")
   astrologyStyle       String   @default("Vedic Astrology")
   systemInstructions   String   @default("Give confident, specific astrology-oriented guidance. Ask relevant follow-up questions and engage naturally with whatever the user brings up.")
   priceRupeesPerMinute Int      @default(15)
@@ -277,6 +278,16 @@ model Remedy {
   userId     String?
   user       User?    @relation(fields: [userId], references: [id])
   concern    String
+  resultText String
+  createdAt  DateTime @default(now())
+}
+
+model TarotReading {
+  id         String   @id @default(uuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  question   String?
+  cards      String[] // the drawn card names, in draw order
   resultText String
   createdAt  DateTime @default(now())
 }

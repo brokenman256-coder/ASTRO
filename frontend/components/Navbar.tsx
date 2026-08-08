@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/astrologers", label: "Astrologers" },
   { href: "/chat", label: "Chat" },
   { href: "/predictions", label: "Predictions" },
+  { href: "/tarot", label: "Tarot" },
   { href: "/palm-reading", label: "Palm Reading" },
   { href: "/remedies", label: "Remedies" },
   { href: "/wallet", label: "Wallet" },

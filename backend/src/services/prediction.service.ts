@@ -156,3 +156,31 @@ instructions for practicing it.`;
     maxTokens: 500,
   });
 }
+
+const TAROT_SYSTEM = `You are Astro's tarot reader, deeply versed in the traditional 78-card deck
+and its established meanings (upright and reversed). A user has drawn specific cards, in order,
+optionally with a question in mind. Give a confident, specific, emotionally resonant reading:
+address each card in the order drawn (name the position - e.g. past/present/future for a 3-card
+draw), explain its traditional meaning, and weave the cards together into one coherent overall
+message rather than three disconnected blurbs. Write in warm, vivid, second-person language. Keep
+it to 200-300 words.`;
+
+export interface TarotInput {
+  cards: string[];
+  question?: string;
+  name?: string;
+}
+
+export async function generateTarotReading(input: TarotInput) {
+  const prompt = `Cards drawn, in order: ${input.cards.join(", ")}
+${input.question ? `The user's question: "${input.question}"` : "The user didn't specify a question - give a general life reading."}
+${input.name ? `Their name: ${input.name}` : ""}
+
+Give the tarot reading for these cards.`;
+
+  return generateAIResponse({
+    system: TAROT_SYSTEM,
+    messages: [{ role: "user", content: prompt }],
+    maxTokens: 600,
+  });
+}

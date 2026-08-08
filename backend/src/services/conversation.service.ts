@@ -110,6 +110,17 @@ export async function startOrResumeConversation(userId: string, astrologerId: st
     },
   });
 
+  // The astrologer opens the conversation with their own greeting - a real
+  // stored message (not an AI call, so no extra cost or delay), so the chat
+  // never starts on a blank screen.
+  await prisma.message.create({
+    data: { conversationId: conversation.id, sender: "ASTROLOGER", content: astrologer.greeting },
+  });
+  await prisma.conversation.update({
+    where: { id: conversation.id },
+    data: { messageCount: { increment: 1 } },
+  });
+
   return { conversation, astrologer, isNew: true };
 }
 

@@ -22,6 +22,7 @@ import { remediesRouter } from "./routes/remedies.routes";
 import { chatRouter } from "./routes/chat.routes";
 import { conversationsRouter } from "./routes/conversations.routes";
 import { adminAIRouter } from "./routes/adminAI.routes";
+import { tarotRouter } from "./routes/tarot.routes";
 
 // Route mounts intentionally have no "/api" prefix here - both entry points
 // (index.ts for a persistent server, netlify/functions/api.ts for
@@ -47,6 +48,7 @@ export function createApp() {
   app.use("/bot", botRouter);
   app.use("/admin", adminRouter);
   app.use("/remedies", remediesRouter);
+  app.use("/tarot", tarotRouter);
   app.use("/chat", chatRouter);
   app.use("/conversations", conversationsRouter);
   app.use("/admin/ai-settings", adminAIRouter);

@@ -195,8 +195,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Palm Reading + Remedies teasers */}
-      <section className="grid md:grid-cols-2 gap-6">
+      {/* Tarot + Palm Reading + Remedies teasers */}
+      <section className="grid md:grid-cols-3 gap-6">
+        <Link href="/tarot" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
+          <h3 className="text-lg font-semibold text-slate-800">Tarot Reading</h3>
+          <p className="text-sm text-slate-500 mt-2">Draw your cards and get a detailed AI-guided tarot reading for whatever&apos;s on your mind.</p>
+          <span className="inline-block mt-4 text-sm text-brand-dark font-medium">Draw cards →</span>
+        </Link>
         <Link href="/palm-reading" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
           <h3 className="text-lg font-semibold text-slate-800">Palm Reading</h3>
           <p className="text-sm text-slate-500 mt-2">Upload a photo of your palm for a detailed AI-guided reading of your life, head, heart, and fate lines.</p>
