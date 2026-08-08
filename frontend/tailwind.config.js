@@ -12,6 +12,10 @@ module.exports = {
         accent: "#C2410C",
         gold: "#F5B942",
         cream: "#FFF7ED",
+        navy: "#1E2340",
+      },
+      fontFamily: {
+        display: ["var(--font-display)", "Georgia", "serif"],
       },
       boxShadow: {
         glow: "0 8px 30px -8px rgba(232, 89, 12, 0.45)",

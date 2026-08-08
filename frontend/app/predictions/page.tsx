@@ -64,7 +64,7 @@ export default function PredictionsPage() {
   return (
     <div className="space-y-12">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-slate-800">Predictions</h1>
+        <h1 className="font-display text-3xl font-bold text-navy">Predictions</h1>
         <p className="text-slate-500 mt-1">Pick your sign for a full reading, or ask your own question below.</p>
       </div>
 

@@ -123,7 +123,7 @@ export default function RemediesPage() {
   return (
     <div className="space-y-12">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-slate-800">Remedies</h1>
+        <h1 className="font-display text-3xl font-bold text-navy">Remedies</h1>
         <p className="text-slate-500 mt-1 max-w-xl mx-auto">
           Pick what&apos;s troubling you, and receive a specific mantra or practice drawn from the
           Bhagavad Gita, the Vedas, and other Hindu scriptures to help restore balance.

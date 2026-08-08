@@ -76,11 +76,11 @@ export default function HomePage() {
   return (
     <div className="space-y-20">
       {/* Hero */}
-      <section className="relative overflow-hidden text-center space-y-6 py-16 rounded-3xl bg-gradient-to-b from-orange-100 via-orange-50 to-transparent -mt-4 px-4">
+      <section className="star-field relative overflow-hidden text-center space-y-6 py-16 rounded-3xl bg-gradient-to-b from-orange-100 via-orange-50 to-transparent -mt-4 px-4">
         <div className="glow-orb w-72 h-72 bg-brand/30 -top-20 -left-10 animate-pulse-slow" />
         <div className="glow-orb w-80 h-80 bg-gold/25 -top-10 -right-16 animate-pulse-slow" style={{ animationDelay: "1.5s" }} />
         <div className="relative">
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gradient-brand tracking-tight animate-fade-up">
+          <h1 className="font-display text-5xl md:text-7xl font-extrabold text-gradient-brand tracking-tight animate-fade-up">
             {branding?.appName ?? "ASTRO"}
           </h1>
           <p className="text-lg text-slate-700 max-w-2xl mx-auto font-medium mt-5 animate-fade-up" style={{ animationDelay: "0.1s" }}>
@@ -245,7 +245,7 @@ export default function HomePage() {
 function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="text-center">
-      <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+      <h2 className="font-display text-2xl md:text-3xl font-bold text-navy">{title}</h2>
       {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
     </div>
   );

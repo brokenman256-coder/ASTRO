@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 import { setUserSession } from "@/lib/session";
@@ -37,6 +38,11 @@ export default function LoginPage() {
         <button className="btn-primary w-full" disabled={loading}>
           {loading ? "Logging in..." : "Log in"}
         </button>
+        <p className="text-center text-sm">
+          <Link href="/forgot-password" className="text-brand-dark hover:underline">
+            Forgot password?
+          </Link>
+        </p>
       </form>
     </div>
   );

@@ -59,6 +59,10 @@ interface SchedulerSettings {
   maxActiveAstrologers: number;
   dailyDisplayCount: number;
   lastRunAt: string | null;
+  refreshEnabled: boolean;
+  refreshIntervalMinutes: number;
+  refreshBatchSize: number;
+  lastRefreshAt: string | null;
 }
 
 export default function AdminAstrologersPage() {
@@ -316,6 +320,53 @@ function toPayload(f: PersonaFormState) {
 
           <p className="text-xs text-slate-500">
             Last ran: {scheduler.lastRunAt ? new Date(scheduler.lastRunAt).toLocaleString() : "never"}
+          </p>
+
+          <div className="border-t border-orange-100 pt-4 flex items-center justify-between">
+            <div>
+              <h2 className="font-medium">Info-refresh bot</h2>
+              <p className="text-xs text-slate-500 mt-1">
+                Every {scheduler.refreshIntervalMinutes} minutes, randomizes name/specialty/experience/rating/bio/photo
+                for {scheduler.refreshBatchSize} random bot-generated astrologers (never the hand-curated named
+                personas, and never anyone with a consultation in progress).
+              </p>
+            </div>
+            <button
+              className={scheduler.refreshEnabled ? "btn-primary" : "btn-secondary"}
+              onClick={() => saveScheduler({ refreshEnabled: !scheduler.refreshEnabled })}
+              disabled={schedulerSaving}
+            >
+              {scheduler.refreshEnabled ? "On" : "Off"}
+            </button>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">Refresh interval (minutes)</label>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                max={1440}
+                value={scheduler.refreshIntervalMinutes}
+                onChange={(e) => setScheduler({ ...scheduler, refreshIntervalMinutes: Number(e.target.value) })}
+                onBlur={() => saveScheduler({ refreshIntervalMinutes: scheduler.refreshIntervalMinutes })}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">Astrologers refreshed per run</label>
+              <input
+                className="input"
+                type="number"
+                min={1}
+                max={200}
+                value={scheduler.refreshBatchSize}
+                onChange={(e) => setScheduler({ ...scheduler, refreshBatchSize: Number(e.target.value) })}
+                onBlur={() => saveScheduler({ refreshBatchSize: scheduler.refreshBatchSize })}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-slate-500">
+            Last refreshed: {scheduler.lastRefreshAt ? new Date(scheduler.lastRefreshAt).toLocaleString() : "never"}
           </p>
         </div>
       )}

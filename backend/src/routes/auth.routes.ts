@@ -81,6 +81,84 @@ authRouter.post("/logout", (_req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Forgot password (OTP) ----------
+// No email/SMS provider is configured (same honesty as the wallet top-up
+// QR flow), so the OTP is issued and surfaced in the admin panel for a
+// human to relay to the user, rather than silently pretending a real
+// delivery channel exists. The public response is always the same generic
+// message regardless of whether the email exists, so this can't be used to
+// enumerate accounts.
+
+const forgotPasswordLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 5 });
+const resetPasswordLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10 });
+
+function generateOtp(): string {
+  return String(crypto.randomInt(100000, 1000000));
+}
+
+const forgotPasswordSchema = z.object({ email: z.string().email() });
+const GENERIC_FORGOT_MESSAGE =
+  "If an account exists for this email, an OTP request has been submitted - our team will reach out with your code shortly.";
+
+authRouter.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
+  const parsed = forgotPasswordSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "A valid email is required" });
+
+  const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
+  if (user) {
+    await prisma.passwordResetRequest.updateMany({
+      where: { userId: user.id, used: false },
+      data: { used: true }, // invalidate any earlier still-pending OTPs
+    });
+    await prisma.passwordResetRequest.create({
+      data: {
+        userId: user.id,
+        email: user.email,
+        otp: generateOtp(),
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      },
+    });
+  }
+
+  res.json({ message: GENERIC_FORGOT_MESSAGE });
+});
+
+const resetPasswordSchema = z.object({
+  email: z.string().email(),
+  otp: z.string().min(6).max(6),
+  newPassword: z.string().min(6).max(200),
+});
+
+authRouter.post("/reset-password", resetPasswordLimiter, async (req, res) => {
+  const parsed = resetPasswordSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Missing or invalid fields" });
+  const { email, otp, newPassword } = parsed.data;
+
+  const request = await prisma.passwordResetRequest.findFirst({
+    where: { email, otp, used: false, expiresAt: { gt: new Date() } },
+    orderBy: { createdAt: "desc" },
+  });
+  if (!request) return res.status(400).json({ error: "Invalid or expired OTP" });
+
+  const passwordHash = await hashPassword(newPassword);
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: request.userId }, data: { passwordHash } }),
+    prisma.passwordResetRequest.update({ where: { id: request.id }, data: { used: true } }),
+  ]);
+
+  res.json({ message: "Password updated - you can log in with your new password now." });
+});
+
+// ---- Admin: view OTP requests so they can be relayed to the user ----
+authRouter.get("/admin/password-resets", requireAdmin, async (_req, res) => {
+  const requests = await prisma.passwordResetRequest.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 100,
+    include: { user: { select: { name: true, email: true } } },
+  });
+  res.json({ requests });
+});
+
 // ---------- Secret admin passage ----------
 // Step 1: caller must know the out-of-band ADMIN_ACCESS_PHRASE (never sent to
 // the client bundle, only checked server-side). Correct phrase issues a very

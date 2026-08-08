@@ -195,6 +195,49 @@ export async function bulkSeedAstrologers(count: number) {
 }
 
 /**
+ * Bot action: refreshes name/specialty/experience/rating/bio/photo for a
+ * random batch of existing active astrologers, keeping the same row id so
+ * any conversations already pointed at that astrologer keep working - the
+ * persona just becomes a new one going forward. Zero-cost placeholder
+ * photos only (no paid AI headshot generation), matching bulk-seed.
+ */
+export async function botRefreshAstrologerInfo(batchSize: number) {
+  // Only ever touches bot-generated profiles - the hand-curated named
+  // personas (source: MANUAL) keep their crafted personality/tone/etc.
+  // Also skips anyone with a consultation in progress right now, so a
+  // user's astrologer never changes identity mid-chat underneath them.
+  const inActiveChat = await prisma.conversation.findMany({
+    where: { status: "ACTIVE" },
+    select: { astrologerId: true },
+    distinct: ["astrologerId"],
+  });
+  const excluded = new Set(inActiveChat.map((c) => c.astrologerId));
+
+  const activeIds = await prisma.astrologer.findMany({
+    where: { active: true, source: "BOT" },
+    select: { id: true },
+  });
+  const eligible = activeIds.filter((a) => !excluded.has(a.id));
+  if (eligible.length === 0) return [];
+
+  const shuffled = [...eligible].sort(() => Math.random() - 0.5);
+  const targets = shuffled.slice(0, Math.min(batchSize, shuffled.length));
+
+  const updated = [];
+  for (const { id } of targets) {
+    const { fallbackPhotoUrl, gender, age, ...profile } = generateAstrologerProfile();
+    void gender;
+    void age;
+    const astrologer = await prisma.astrologer.update({
+      where: { id },
+      data: { ...profile, photoUrl: fallbackPhotoUrl },
+    });
+    updated.push(astrologer);
+  }
+  return updated;
+}
+
+/**
  * Retires the single oldest-by-lowest-rating active bot profile regardless
  * of rating threshold - used to make room under a roster size cap.
  */

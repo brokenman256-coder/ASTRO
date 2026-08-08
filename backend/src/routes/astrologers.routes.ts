@@ -158,6 +158,9 @@ const schedulerSettingsSchema = z.object({
   intervalMinutes: z.number().int().min(1).max(1440).optional(),
   maxActiveAstrologers: z.number().int().min(1).max(5000).optional(),
   dailyDisplayCount: z.number().int().min(1).max(5000).optional(),
+  refreshEnabled: z.boolean().optional(),
+  refreshIntervalMinutes: z.number().int().min(1).max(1440).optional(),
+  refreshBatchSize: z.number().int().min(1).max(200).optional(),
 });
 
 astrologersRouter.post("/admin/bot/settings", requireAdmin, async (req, res) => {

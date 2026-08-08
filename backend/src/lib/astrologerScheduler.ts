@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { botAddAstrologer, botRetireOldestForCap } from "../services/astrologerBot.service";
+import { botAddAstrologer, botRetireOldestForCap, botRefreshAstrologerInfo } from "../services/astrologerBot.service";
 
 const TICK_MS = 60 * 1000;
 
@@ -10,26 +10,44 @@ export async function runIfDue() {
     create: { id: 1 },
   });
 
-  if (!settings.enabled) return;
-
-  const dueAt = settings.lastRunAt
-    ? new Date(settings.lastRunAt.getTime() + settings.intervalMinutes * 60 * 1000)
-    : new Date(0);
-  if (new Date() < dueAt) return;
-
-  try {
-    const activeCount = await prisma.astrologer.count({ where: { active: true } });
-    if (activeCount >= settings.maxActiveAstrologers) {
-      await botRetireOldestForCap();
+  if (settings.enabled) {
+    const dueAt = settings.lastRunAt
+      ? new Date(settings.lastRunAt.getTime() + settings.intervalMinutes * 60 * 1000)
+      : new Date(0);
+    if (new Date() >= dueAt) {
+      try {
+        const activeCount = await prisma.astrologer.count({ where: { active: true } });
+        if (activeCount >= settings.maxActiveAstrologers) {
+          await botRetireOldestForCap();
+        }
+        await botAddAstrologer();
+      } catch (err) {
+        console.error("Astrologer auto-bot run failed:", err);
+      } finally {
+        await prisma.astrologerBotSettings.update({
+          where: { id: 1 },
+          data: { lastRunAt: new Date() },
+        });
+      }
     }
-    await botAddAstrologer();
-  } catch (err) {
-    console.error("Astrologer auto-bot run failed:", err);
-  } finally {
-    await prisma.astrologerBotSettings.update({
-      where: { id: 1 },
-      data: { lastRunAt: new Date() },
-    });
+  }
+
+  if (settings.refreshEnabled) {
+    const refreshDueAt = settings.lastRefreshAt
+      ? new Date(settings.lastRefreshAt.getTime() + settings.refreshIntervalMinutes * 60 * 1000)
+      : new Date(0);
+    if (new Date() >= refreshDueAt) {
+      try {
+        await botRefreshAstrologerInfo(settings.refreshBatchSize);
+      } catch (err) {
+        console.error("Astrologer info-refresh bot run failed:", err);
+      } finally {
+        await prisma.astrologerBotSettings.update({
+          where: { id: 1 },
+          data: { lastRefreshAt: new Date() },
+        });
+      }
+    }
   }
 }
 

@@ -83,7 +83,7 @@ function AstrologersContent() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">Our Astrologers</h1>
+        <h1 className="font-display text-3xl font-bold text-navy">Our Astrologers</h1>
         <p className="text-slate-500 mt-1">Today's featured experts - a fresh selection every day.</p>
       </div>
 

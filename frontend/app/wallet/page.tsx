@@ -8,20 +8,32 @@ import { getUserToken } from "@/lib/session";
 interface Transaction {
   id: string;
   amount: number;
+  bonusPaise: number;
   status: "PENDING" | "APPROVED" | "REJECTED";
   referenceCode: string;
+  note: string | null;
   createdAt: string;
+}
+
+interface Scheme {
+  id: string;
+  label: string;
+  minAmountPaise: number;
+  bonusPercent: number;
 }
 
 function rupees(paise: number) {
   return `₹${(paise / 100).toFixed(2)}`;
 }
 
+const LOW_BALANCE_THRESHOLD_PAISE = 10000; // ₹100 - nudges the user to top up
+
 export default function WalletPage() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [minRechargePaise, setMinRechargePaise] = useState(10000);
   const [amount, setAmount] = useState("500");
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -42,6 +54,9 @@ export default function WalletPage() {
         setMinRechargePaise(d.minRechargeAmountPaise);
         setAmount((d.minRechargeAmountPaise / 100).toFixed(0));
       })
+      .catch(() => {});
+    apiGet("/wallet/schemes")
+      .then((d) => setSchemes(d.schemes))
       .catch(() => {});
   }, [router]);
 
@@ -77,6 +92,7 @@ export default function WalletPage() {
 
   const minRechargeRupees = minRechargePaise / 100;
   const quickAmounts = Array.from(new Set([minRechargeRupees, minRechargeRupees * 2, minRechargeRupees * 5]));
+  const isLowBalance = balance !== null && balance < LOW_BALANCE_THRESHOLD_PAISE;
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
@@ -87,7 +103,38 @@ export default function WalletPage() {
         </p>
       </div>
 
-      <form onSubmit={handleTopup} className="card p-6 space-y-4">
+      {isLowBalance && (
+        <div className="card p-4 border-amber-300 bg-amber-50 flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-sm text-amber-800">
+            Your balance is running low - top up now so a consultation is never interrupted.
+          </p>
+          <a href="#recharge" className="btn-primary !py-1.5 !px-3 text-xs shrink-0">
+            Recharge now
+          </a>
+        </div>
+      )}
+
+      {schemes.length > 0 && (
+        <section>
+          <h2 className="text-sm uppercase tracking-widest text-brand font-semibold mb-3">Recharge offers</h2>
+          <div className="grid sm:grid-cols-3 gap-3">
+            {schemes.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setAmount((s.minAmountPaise / 100).toFixed(0))}
+                className="card p-4 text-left hover:border-brand/40 transition-all"
+              >
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-dark">{s.label}</p>
+                <p className="text-lg font-bold text-slate-800 mt-1">+{s.bonusPercent}% bonus</p>
+                <p className="text-xs text-slate-500 mt-1">On recharges of ₹{(s.minAmountPaise / 100).toFixed(0)} or more</p>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <form id="recharge" onSubmit={handleTopup} className="card p-6 space-y-4 scroll-mt-20">
         <h2 className="font-medium">Add money</h2>
         <p className="text-xs text-slate-500">Minimum recharge: ₹{minRechargeRupees.toFixed(0)}</p>
         <div className="flex flex-wrap gap-2">
@@ -147,8 +194,14 @@ export default function WalletPage() {
           {transactions.map((t) => (
             <div key={t.id} className="flex justify-between items-center text-sm border-b border-orange-100 py-2">
               <div>
-                <p className="text-slate-700">{rupees(t.amount)}</p>
-                <p className="text-xs text-slate-500">{t.referenceCode} · {new Date(t.createdAt).toLocaleDateString()}</p>
+                <p className="text-slate-700">
+                  {rupees(t.amount)}
+                  {t.bonusPaise > 0 && <span className="text-green-600"> + {rupees(t.bonusPaise)} bonus</span>}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {t.referenceCode} · {new Date(t.createdAt).toLocaleDateString()}
+                  {t.note ? ` · ${t.note}` : ""}
+                </p>
               </div>
               <span
                 className={

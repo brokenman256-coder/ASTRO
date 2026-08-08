@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
+import { Playfair_Display } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Astro - AI Astrology, Palm Reading & Expert Astrologers",
@@ -19,7 +27,7 @@ const FOOTER_LINKS = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={playfair.variable}>
       <body>
         <Navbar />
         <main className="max-w-6xl mx-auto px-4 py-10 pb-24 md:pb-10">{children}</main>
@@ -27,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-t border-orange-100 mt-20 py-10 bg-white pb-24 md:pb-10">
           <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-center sm:text-left">
-              <p className="text-lg font-bold text-brand-dark">✦ ASTRO</p>
+              <p className="font-display text-lg font-bold text-brand-dark">✦ ASTRO</p>
               <p className="text-xs text-slate-500 mt-1">Your stars, decoded.</p>
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-slate-500">

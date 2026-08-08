@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminGuard from "@/components/AdminGuard";
 import AdminNav from "@/components/AdminNav";
-import { apiGet, apiPost, apiPut } from "@/lib/api";
+import { apiGet, apiPost, apiPut, apiPatch, apiDelete } from "@/lib/api";
 import { getAdminToken } from "@/lib/session";
 
 interface PendingTx {
@@ -19,6 +19,14 @@ interface PaymentSettings {
   minSessionMinutes: number;
 }
 
+interface Scheme {
+  id: string;
+  label: string;
+  minAmountPaise: number;
+  bonusPercent: number;
+  active: boolean;
+}
+
 function rupees(paise: number) {
   return `₹${(paise / 100).toFixed(2)}`;
 }
@@ -29,6 +37,9 @@ export default function WalletApprovalsPage() {
   const [settings, setSettings] = useState<PaymentSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [schemes, setSchemes] = useState<Scheme[]>([]);
+  const [newScheme, setNewScheme] = useState({ label: "", minAmountPaise: 50000, bonusPercent: 10 });
+  const [schemeBusy, setSchemeBusy] = useState(false);
   const token = getAdminToken();
 
   async function refresh() {
@@ -36,11 +47,50 @@ export default function WalletApprovalsPage() {
     setPending(data.pending);
   }
 
+  async function refreshSchemes() {
+    const data = await apiGet("/wallet/admin/schemes", token);
+    setSchemes(data.schemes);
+  }
+
   useEffect(() => {
     refresh();
+    refreshSchemes();
     apiGet("/wallet/admin/payment-settings", token).then((d) => setSettings(d.settings));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function createScheme(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newScheme.label.trim()) return;
+    setSchemeBusy(true);
+    try {
+      await apiPost("/wallet/admin/schemes", newScheme, token);
+      setNewScheme({ label: "", minAmountPaise: 50000, bonusPercent: 10 });
+      await refreshSchemes();
+    } finally {
+      setSchemeBusy(false);
+    }
+  }
+
+  async function toggleScheme(scheme: Scheme) {
+    setSchemeBusy(true);
+    try {
+      await apiPatch(`/wallet/admin/schemes/${scheme.id}`, { active: !scheme.active }, token);
+      await refreshSchemes();
+    } finally {
+      setSchemeBusy(false);
+    }
+  }
+
+  async function deleteScheme(id: string) {
+    setSchemeBusy(true);
+    try {
+      await apiDelete(`/wallet/admin/schemes/${id}`, token);
+      await refreshSchemes();
+    } finally {
+      setSchemeBusy(false);
+    }
+  }
 
   async function act(id: string, action: "approve" | "reject") {
     setBusyId(id);
@@ -122,6 +172,79 @@ export default function WalletApprovalsPage() {
             </button>
           </form>
         )}
+      </section>
+
+      <section className="card p-6 max-w-xl mb-8">
+        <h2 className="font-medium mb-1">Recharge bonus schemes</h2>
+        <p className="text-xs text-slate-500 mb-4">
+          Shown as promo cards on the wallet page to encourage bigger top-ups. When you approve a
+          top-up that meets a scheme&apos;s minimum, the bonus is credited automatically on top of the
+          amount paid.
+        </p>
+
+        <div className="space-y-2 mb-4">
+          {schemes.length === 0 && <p className="text-slate-500 text-sm">No schemes yet.</p>}
+          {schemes.map((s) => (
+            <div key={s.id} className="flex items-center justify-between gap-3 border-b border-orange-100 py-2">
+              <div>
+                <p className="text-sm font-medium">{s.label} - +{s.bonusPercent}%</p>
+                <p className="text-xs text-slate-500">On recharges of ₹{(s.minAmountPaise / 100).toFixed(0)}+</p>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <button
+                  className="text-xs px-2 py-1 rounded-full border border-orange-200 text-slate-600 hover:bg-orange-50"
+                  onClick={() => toggleScheme(s)}
+                  disabled={schemeBusy}
+                >
+                  {s.active ? "Active" : "Inactive"}
+                </button>
+                <button
+                  className="text-xs px-2 py-1 rounded-full border border-red-200 text-red-600 hover:bg-red-50"
+                  onClick={() => deleteScheme(s.id)}
+                  disabled={schemeBusy}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={createScheme} className="grid sm:grid-cols-3 gap-3 items-end">
+          <div>
+            <label className="text-xs text-slate-500 block mb-1">Label</label>
+            <input
+              className="input"
+              placeholder="e.g. Power Pack"
+              value={newScheme.label}
+              onChange={(e) => setNewScheme({ ...newScheme, label: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-500 block mb-1">Min recharge (₹)</label>
+            <input
+              className="input"
+              type="number"
+              min={1}
+              value={newScheme.minAmountPaise / 100}
+              onChange={(e) => setNewScheme({ ...newScheme, minAmountPaise: Math.round(Number(e.target.value) * 100) })}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-slate-500 block mb-1">Bonus %</label>
+            <input
+              className="input"
+              type="number"
+              min={1}
+              max={100}
+              value={newScheme.bonusPercent}
+              onChange={(e) => setNewScheme({ ...newScheme, bonusPercent: Number(e.target.value) })}
+            />
+          </div>
+          <button className="btn-primary sm:col-span-3" disabled={schemeBusy}>
+            Add Scheme
+          </button>
+        </form>
       </section>
 
       <section>

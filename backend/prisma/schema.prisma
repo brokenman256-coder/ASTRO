@@ -24,6 +24,7 @@ model User {
   conversations Conversation[]
   usageRecords  UsageRecord[]
   transactions  WalletTransaction[]
+  passwordResets PasswordResetRequest[]
 }
 
 model Admin {
@@ -33,6 +34,24 @@ model Admin {
   createdAt    DateTime            @default(now())
   broadcasts   BroadcastMessage[]
   reviewedTx   WalletTransaction[]
+}
+
+// Simulated OTP delivery, matching the wallet top-up QR flow's honesty
+// about being a demo: no email/SMS provider is configured, so the OTP is
+// surfaced in the admin panel for a human to relay to the user, rather than
+// silently pretending a real delivery channel exists.
+model PasswordResetRequest {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  email     String
+  otp       String
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([email, otp])
 }
 
 enum AstrologerSource {
@@ -159,6 +178,15 @@ model AstrologerBotSettings {
   maxActiveAstrologers Int       @default(30)
   dailyDisplayCount    Int       @default(100)
   lastRunAt            DateTime?
+
+  // Separate periodic action: refreshes name/specialty/experience/bio/photo
+  // for a random batch of existing active astrologers, independent of the
+  // add/prune cadence above - keeps the roster feeling "alive" over time.
+  refreshEnabled         Boolean   @default(true)
+  refreshIntervalMinutes Int       @default(30)
+  refreshBatchSize       Int       @default(5)
+  lastRefreshAt          DateTime?
+
   updatedAt            DateTime  @updatedAt
 }
 
@@ -177,7 +205,8 @@ model WalletTransaction {
   id                String    @id @default(uuid())
   userId            String
   user              User      @relation(fields: [userId], references: [id])
-  amount            Int // paise
+  amount            Int // paise, the amount actually paid/requested
+  bonusPaise        Int       @default(0) // extra credited on approval if a recharge scheme applied
   type              TxType    @default(TOPUP_REQUEST)
   status            TxStatus  @default(PENDING)
   referenceCode     String    @unique
@@ -188,6 +217,18 @@ model WalletTransaction {
   reviewedByAdminId String?
   reviewedByAdmin   Admin?    @relation(fields: [reviewedByAdminId], references: [id])
   reviewedAt        DateTime?
+}
+
+// Admin-configurable recharge incentives shown on the wallet page, e.g.
+// "Recharge Rs500+ and get 10% bonus" - applied automatically when an
+// admin approves a top-up that meets the tier's minimum amount.
+model RechargeScheme {
+  id             String   @id @default(uuid())
+  label          String
+  minAmountPaise Int
+  bonusPercent   Int // whole percent, e.g. 10 = +10%
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
 }
 
 // Singleton admin-configurable payment/billing rules. Consultations are
