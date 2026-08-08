@@ -14,6 +14,7 @@ model User {
   email         String              @unique
   phone         String?
   dob           DateTime?
+  zodiacSign    String?
   passwordHash  String
   walletBalance Int                 @default(0) // stored in paise (1/100 currency unit)
   createdAt     DateTime            @default(now())
@@ -80,7 +81,7 @@ model Astrologer {
   languages            String[] @default(["English"])
   greeting             String   @default("Welcome. Tell me what has been on your mind lately.")
   astrologyStyle       String   @default("Vedic Astrology")
-  systemInstructions   String   @default("Give astrology-oriented guidance for entertainment purposes. Ask relevant follow-up questions. Do not claim certainty about the future.")
+  systemInstructions   String   @default("Give confident, specific astrology-oriented guidance. Ask relevant follow-up questions and engage naturally with whatever the user brings up.")
   priceRupeesPerMinute Int      @default(15)
   consultationCount    Int      @default(0)
 

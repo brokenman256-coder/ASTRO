@@ -3,22 +3,27 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { optionalUser, requireUser, requireAdmin, AuthedRequest } from "../middleware/auth";
 import { generatePrediction, generateGuidedPrediction } from "../services/prediction.service";
-import { zodiacFromDate, RUDRAKSHA_BY_ZODIAC } from "../lib/zodiac";
+import { zodiacFromDate, ZODIAC_DATA, RUDRAKSHA_BY_ZODIAC } from "../lib/zodiac";
 
 export const predictionsRouter = Router();
 
-// Personalized daily horoscope + rudraksha recommendation, computed from
-// the user's own stored date of birth - different for every user, cached
-// for the day so it isn't regenerated (and re-charged in AI usage) on
-// every page view.
+// Personalized daily horoscope + rudraksha recommendation - uses the sign
+// the user told us at signup if they gave one (it's what they identify
+// with, even if it doesn't perfectly match their DOB), otherwise derives it
+// from their stored date of birth. Different for every user, cached for the
+// day so it isn't regenerated (and re-charged in AI usage) on every view.
 predictionsRouter.get("/personal-daily", requireUser, async (req: AuthedRequest, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.user!.sub } });
   if (!user) return res.status(404).json({ error: "User not found" });
-  if (!user.dob) {
-    return res.status(400).json({ error: "Add your date of birth in your profile to see your personal horoscope." });
-  }
 
-  const zodiac = zodiacFromDate(new Date(user.dob));
+  const zodiac = user.zodiacSign
+    ? ZODIAC_DATA.find((z) => z.name === user.zodiacSign)
+    : user.dob
+    ? zodiacFromDate(new Date(user.dob))
+    : undefined;
+  if (!zodiac) {
+    return res.status(400).json({ error: "Add your zodiac sign or date of birth in your profile to see your personal horoscope." });
+  }
   const rudraksha = RUDRAKSHA_BY_ZODIAC[zodiac.name];
 
   const startOfDay = new Date();
@@ -41,7 +46,7 @@ predictionsRouter.get("/personal-daily", requireUser, async (req: AuthedRequest,
     category: "DAILY",
     zodiacSign: zodiac.name,
     name: user.name,
-    dob: user.dob.toISOString().slice(0, 10),
+    dob: user.dob ? user.dob.toISOString().slice(0, 10) : undefined,
     period: "daily",
   });
 

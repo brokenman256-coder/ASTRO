@@ -16,11 +16,21 @@ import {
   adminCookieOptions,
 } from "../lib/auth";
 import { requireAdmin, requireUser, AuthedRequest } from "../middleware/auth";
+import { ZODIAC_DATA } from "../lib/zodiac";
 
 export const authRouter = Router();
 
-function publicUser(user: { id: string; name: string; email: string; phone: string | null; dob: Date | null }) {
-  return { id: user.id, name: user.name, email: user.email, phone: user.phone, dob: user.dob };
+const ZODIAC_NAMES = ZODIAC_DATA.map((z) => z.name) as [string, ...string[]];
+
+function publicUser(user: {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  dob: Date | null;
+  zodiacSign: string | null;
+}) {
+  return { id: user.id, name: user.name, email: user.email, phone: user.phone, dob: user.dob, zodiacSign: user.zodiacSign };
 }
 
 // ---------- User auth ----------
@@ -31,19 +41,20 @@ const signupSchema = z.object({
   password: z.string().min(6).max(200),
   phone: z.string().min(7).max(20),
   dob: z.string().refine((v) => !Number.isNaN(Date.parse(v)), "Invalid date of birth"),
+  zodiacSign: z.enum(ZODIAC_NAMES),
 });
 
 authRouter.post("/signup", async (req, res) => {
   const parsed = signupSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.issues[0].message });
-  const { name, email, password, phone, dob } = parsed.data;
+  const { name, email, password, phone, dob, zodiacSign } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return res.status(409).json({ error: "An account with this email already exists" });
 
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
-    data: { name, email, passwordHash, phone, dob: new Date(dob) },
+    data: { name, email, passwordHash, phone, dob: new Date(dob), zodiacSign },
   });
   const token = signUserToken({ sub: user.id, email: user.email, role: "user" });
   res.cookie(USER_COOKIE, token, userCookieOptions());

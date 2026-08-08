@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 import { setUserSession } from "@/lib/session";
+import { ZODIAC_DATA } from "@/lib/zodiac";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [dob, setDob] = useState("");
+  const [zodiacSign, setZodiacSign] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,6 +28,7 @@ export default function SignupPage() {
         password,
         phone: phone || undefined,
         dob: dob || undefined,
+        zodiacSign: zodiacSign || undefined,
       });
       setUserSession(data.user);
       router.push("/");
@@ -70,6 +73,15 @@ export default function SignupPage() {
             required
           />
           <p className="text-[11px] text-slate-400 mt-1">Used for more accurate astrology readings.</p>
+        </div>
+        <div>
+          <label className="text-xs text-slate-500 block mb-1">Zodiac sign</label>
+          <select className="input" value={zodiacSign} onChange={(e) => setZodiacSign(e.target.value)} required>
+            <option value="" disabled>Select your sign</option>
+            {ZODIAC_DATA.map((z) => (
+              <option key={z.name} value={z.name}>{z.symbol} {z.name} ({z.dateRange})</option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="text-xs text-slate-500 block mb-1">Password</label>
