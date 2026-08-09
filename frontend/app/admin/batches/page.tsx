@@ -34,7 +34,7 @@ export default function BatchesPage() {
     e.preventDefault();
     const size = parseInt(batchSize, 10);
     if (!size || size < 1) return;
-    if (!confirm(`Re-organize the entire roster into batches of ${size}? Every Aghori's batch number will be reassigned.`)) return;
+    if (!confirm(`Re-organize the entire roster into batches of ${size}? Every Oracle's batch number will be reassigned.`)) return;
     setBusy(true);
     setError("");
     try {
@@ -63,7 +63,7 @@ export default function BatchesPage() {
   return (
     <AdminGuard>
       <AdminNav />
-      <h1 className="text-2xl font-semibold mb-2">Aghori batches</h1>
+      <h1 className="text-2xl font-semibold mb-2">Oracle batches</h1>
       <p className="text-slate-500 text-sm mb-6 max-w-2xl">
         Group the roster into fixed-size cohorts and bring a whole batch online or offline at
         once - e.g. keep one 200-strong batch active while a second sits in reserve.
@@ -72,7 +72,7 @@ export default function BatchesPage() {
       <form onSubmit={handleAssign} className="card p-6 max-w-md mb-8 space-y-3">
         <h2 className="font-medium">Re-organize into batches</h2>
         <p className="text-xs text-slate-500">
-          One-time action - assigns every Aghori (by creation order) into sequential batches of
+          One-time action - assigns every Oracle (by creation order) into sequential batches of
           this size. Existing per-astrologer active/inactive state is untouched until you toggle
           a batch below.
         </p>

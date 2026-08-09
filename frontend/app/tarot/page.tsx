@@ -87,8 +87,8 @@ export default function TarotPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="text-center">
-        <h1 className="font-display text-3xl font-bold text-navy">Tarot Reading</h1>
-        <p className="text-slate-500 mt-1">
+        <h1 className="font-display text-3xl font-bold text-white">Tarot Reading</h1>
+        <p className="text-ash-light mt-1">
           Ask a question, or leave it open, and draw your cards for an AI-guided reading.
         </p>
       </div>

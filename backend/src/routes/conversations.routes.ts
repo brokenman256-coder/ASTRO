@@ -54,7 +54,7 @@ conversationsRouter.post("/", requireUser, async (req: AuthedRequest, res) => {
     if (err instanceof InsufficientBalanceError) {
       return res.status(402).json({ error: err.message, insufficientBalance: true });
     }
-    res.status(404).json({ error: "Aghori not found" });
+    res.status(404).json({ error: "Oracle not found" });
   }
 });
 
@@ -140,7 +140,7 @@ conversationsRouter.post("/:id/messages", requireUser, messageLimiter, async (re
       return res.status(404).json({ error: "Conversation not found" });
     }
     console.error("sendMessage failed:", err);
-    res.status(500).json({ error: "Sorry, this Aghori is temporarily unavailable. Please try again." });
+    res.status(500).json({ error: "Sorry, this Oracle is temporarily unavailable. Please try again." });
   }
 });
 

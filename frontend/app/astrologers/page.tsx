@@ -24,7 +24,7 @@ type SortKey = "top-rated" | "most-experienced" | "lowest-price" | "available-no
 
 export default function AstrologersPage() {
   return (
-    <Suspense fallback={<p className="text-slate-400">Loading...</p>}>
+    <Suspense fallback={<p className="text-ash-light">Loading...</p>}>
       <AstrologersContent />
     </Suspense>
   );
@@ -83,8 +83,8 @@ function AstrologersContent() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-3xl font-bold text-navy">Our Aghoris</h1>
-        <p className="text-slate-500 mt-1">Today's featured experts - a fresh selection every day.</p>
+        <h1 className="font-display text-3xl font-bold text-white">Our Oracles</h1>
+        <p className="text-ash-light mt-1">Today's featured experts - a fresh selection every day.</p>
       </div>
 
       <div className="card p-4 flex flex-wrap gap-3 items-end">
@@ -117,9 +117,9 @@ function AstrologersContent() {
         </div>
       </div>
 
-      {loading && <p className="text-slate-400">Loading...</p>}
+      {loading && <p className="text-ash-light">Loading...</p>}
       {!loading && filtered.length === 0 && (
-        <p className="text-slate-400">No Aghoris match those filters - try widening them.</p>
+        <p className="text-ash-light">No Oracles match those filters - try widening them.</p>
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

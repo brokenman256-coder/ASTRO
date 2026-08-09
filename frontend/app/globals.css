@@ -2,31 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Wild/Aghori theme: a moodier, ash-toned backdrop (evoking cremation-
-   ground ash) with stronger ember/maroon glows, replacing the earlier
-   bright orange-cream base - kept light enough that the existing
-   slate-700/800 body text (used throughout, not just inside cards) still
-   has safe contrast. The navbar/footer/hero carry the bulk of the fully
-   dark "wild" visual weight. */
+/* Dark/terrifying theme: the page itself is a near-black void with
+   bleeding ember/blood-red glows and a faint grain texture, so the whole
+   site - not just the navbar/footer/hero - reads as genuinely dark. All
+   reading surfaces (.card / .card-royal) stay on a pale bone tone so the
+   existing slate-700/800 text used inside them keeps safe contrast; any
+   heading/text that sits directly on the void background has been moved
+   to a light color (see the page components) rather than left dark. */
 body {
-  @apply text-slate-800 min-h-screen;
-  background-color: #ede7df;
-  background-image: radial-gradient(circle at 12% 8%, rgba(255, 79, 26, 0.13), transparent 42%),
-    radial-gradient(circle at 88% 4%, rgba(122, 18, 48, 0.16), transparent 38%),
-    radial-gradient(circle at 50% 100%, rgba(13, 11, 10, 0.06), transparent 60%);
+  @apply text-ash-light min-h-screen;
+  background-color: #070504;
+  background-image: radial-gradient(circle at 15% 10%, rgba(255, 79, 26, 0.16), transparent 40%),
+    radial-gradient(circle at 85% 6%, rgba(138, 3, 3, 0.28), transparent 42%),
+    radial-gradient(circle at 50% 105%, rgba(138, 3, 3, 0.22), transparent 55%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.65) 100%);
   background-attachment: fixed;
 }
 
-.card {
-  @apply bg-white/90 border border-orange-100 rounded-2xl shadow-card backdrop-blur-sm transition-all duration-300;
+/* Cheap inline-SVG grain so the void backdrop doesn't read as flat -
+   fixed and pointer-events-none so it never interferes with content. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Royal treatment: a slim gold top edge + deeper shadow for premium
+.card {
+  @apply bg-[#f2ede4]/95 border border-blood/15 rounded-2xl shadow-card backdrop-blur-sm transition-all duration-300;
+}
+
+/* Royal treatment: a slim ember/blood top edge + deeper shadow for premium
    surfaces (featured cards, hero panels) - used sparingly, not globally. */
 .card-royal {
-  @apply bg-white/95 rounded-2xl backdrop-blur-sm transition-all duration-300 relative overflow-hidden;
-  border: 1px solid rgba(122, 18, 48, 0.14);
-  box-shadow: 0 12px 34px -14px rgba(74, 10, 28, 0.35);
+  @apply bg-[#f2ede4]/95 rounded-2xl backdrop-blur-sm transition-all duration-300 relative overflow-hidden;
+  border: 1px solid rgba(138, 3, 3, 0.22);
+  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.75);
 }
 
 .card-royal::before {

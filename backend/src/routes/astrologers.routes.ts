@@ -76,7 +76,7 @@ astrologersRouter.get("/", async (_req, res) => {
 // Public: single astrologer profile.
 astrologersRouter.get("/:id", async (req, res) => {
   const astrologer = await prisma.astrologer.findUnique({ where: { id: req.params.id } });
-  if (!astrologer || !astrologer.active) return res.status(404).json({ error: "Aghori not found" });
+  if (!astrologer || !astrologer.active) return res.status(404).json({ error: "Oracle not found" });
   res.json({ astrologer });
 });
 
@@ -157,7 +157,7 @@ astrologersRouter.post("/admin/:id/test-chat", requireAdmin, async (req, res) =>
     res.json(result);
   } catch (err) {
     if (err instanceof Error && err.message === "Astrologer not found") {
-      return res.status(404).json({ error: "Aghori not found" });
+      return res.status(404).json({ error: "Oracle not found" });
     }
     throw err;
   }
@@ -167,7 +167,7 @@ astrologersRouter.post("/admin/:id/test-chat", requireAdmin, async (req, res) =>
 
 astrologersRouter.post("/admin/bot/add", requireAdmin, async (_req, res) => {
   const astrologer = await botAddAstrologer();
-  res.status(201).json({ astrologer, message: "Bot created a new Aghori profile." });
+  res.status(201).json({ astrologer, message: "Bot created a new Oracle profile." });
 });
 
 const pruneSchema = z.object({

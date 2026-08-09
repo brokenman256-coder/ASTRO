@@ -75,7 +75,7 @@ export default function PredictionDetailPage() {
   if (!zodiac) {
     return (
       <div className="max-w-2xl mx-auto text-center space-y-4">
-        <p className="text-slate-500">We couldn&apos;t find that zodiac sign.</p>
+        <p className="text-ash-light">We couldn&apos;t find that zodiac sign.</p>
         <Link href="/predictions" className="text-brand-dark font-medium hover:underline">← Back to predictions</Link>
       </div>
     );
@@ -87,8 +87,8 @@ export default function PredictionDetailPage() {
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="text-center">
         <p className="text-5xl">{zodiac.symbol}</p>
-        <h1 className="text-3xl font-bold text-slate-800 mt-2">{zodiac.name}</h1>
-        <p className="text-slate-400 text-sm">{zodiac.dateRange} · {zodiac.element}</p>
+        <h1 className="text-3xl font-bold text-white mt-2">{zodiac.name}</h1>
+        <p className="text-ash-light text-sm">{zodiac.dateRange} · {zodiac.element}</p>
         <Link href="/predictions" className="inline-block mt-3 text-xs text-brand-dark hover:underline">
           ← All signs
         </Link>

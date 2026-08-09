@@ -12,24 +12,14 @@ const PROMO_TYPES = [
     prompt: "Write a short, exciting one-line banner encouraging users to recharge their wallet - mention that first-time users get a special bonus.",
   },
   {
-    ctaLabel: "Meet the Aghoris",
+    ctaLabel: "Meet the Oracles",
     ctaHref: "/astrologers",
-    prompt: "Write a short, exciting one-line banner inviting users to browse the Aghori marketplace and start a fearless consultation.",
+    prompt: "Write a short, exciting one-line banner inviting users to browse the Oracle marketplace and start a fearless consultation.",
   },
   {
     ctaLabel: "Draw your cards",
     ctaHref: "/tarot",
     prompt: "Write a short, exciting one-line banner inviting users to try a tarot card reading.",
-  },
-  {
-    ctaLabel: "Generate my Kundli",
-    ctaHref: "/kundli",
-    prompt: "Write a short, exciting one-line banner inviting users to get their Vedic Kundli birth chart reading.",
-  },
-  {
-    ctaLabel: "Check today's luck",
-    ctaHref: "/panchang",
-    prompt: "Write a short, exciting one-line banner inviting users to check today's panchang and their personal luck score.",
   },
 ] as const;
 

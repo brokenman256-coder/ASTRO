@@ -29,6 +29,11 @@ module.exports = {
           DEFAULT: "#FF4F1A",
           dark: "#B8300C",
         },
+        blood: {
+          DEFAULT: "#8A0303",
+          dark: "#3D0010",
+        },
+        void: "#070504",
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],

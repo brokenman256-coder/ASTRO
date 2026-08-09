@@ -87,7 +87,7 @@ export default function ProfilePage() {
           <p className="text-sm font-medium text-slate-700">Wallet</p>
         </Link>
         <Link href="/astrologers" className="card p-4 flex-1 text-center hover:border-brand/40 transition-all">
-          <p className="text-sm font-medium text-slate-700">Browse Aghoris</p>
+          <p className="text-sm font-medium text-slate-700">Browse Oracles</p>
         </Link>
       </div>
 
@@ -126,7 +126,7 @@ export default function ProfilePage() {
           <p className="text-sm text-slate-500">
             No consultations yet.{" "}
             <Link href="/astrologers" className="text-brand-dark font-medium hover:underline">
-              Talk to an Aghori
+              Talk to an Oracle
             </Link>
             .
           </p>

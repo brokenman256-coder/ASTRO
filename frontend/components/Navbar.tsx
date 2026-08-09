@@ -7,11 +7,9 @@ import { apiPost } from "@/lib/api";
 import { clearUserSession, getUserInfo } from "@/lib/session";
 
 const NAV_LINKS = [
-  { href: "/astrologers", label: "Aghoris" },
+  { href: "/astrologers", label: "Oracles" },
   { href: "/chat", label: "Chat" },
   { href: "/predictions", label: "Predictions" },
-  { href: "/kundli", label: "Kundli" },
-  { href: "/panchang", label: "Panchang" },
   { href: "/tarot", label: "Tarot" },
   { href: "/palm-reading", label: "Palm Reading" },
   { href: "/remedies", label: "Remedies" },

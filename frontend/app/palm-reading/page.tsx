@@ -48,8 +48,8 @@ export default function PalmReadingPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="text-center">
-        <h1 className="font-display text-3xl font-bold text-navy">Palm Reading</h1>
-        <p className="text-slate-500 mt-1">
+        <h1 className="font-display text-3xl font-bold text-white">Palm Reading</h1>
+        <p className="text-ash-light mt-1">
           Upload a clear, well-lit photo of your open palm for a detailed AI-guided reading.
         </p>
       </div>

@@ -7,7 +7,7 @@ import BottomNav from "@/components/BottomNav";
 import PromoBanner from "@/components/PromoBanner";
 
 const FOOTER_LINKS = [
-  { href: "/astrologers", label: "Aghoris" },
+  { href: "/astrologers", label: "Oracles" },
   { href: "/predictions", label: "Predictions" },
   { href: "/palm-reading", label: "Palm Reading" },
   { href: "/remedies", label: "Remedies" },
@@ -24,7 +24,16 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
   const isAdmin = pathname?.startsWith("/admin");
 
   if (isAdmin) {
-    return <main className="max-w-6xl mx-auto px-4 py-10">{children}</main>;
+    // The admin panel stays on its own light, practical background
+    // regardless of the customer site's dark theme - it's a utility
+    // dashboard, not part of the "terrifying" consumer-facing experience,
+    // and most of its content (tables, lists) was never designed for a
+    // dark backdrop.
+    return (
+      <div className="min-h-screen bg-[#f5f1ea]">
+        <main className="max-w-6xl mx-auto px-4 py-10">{children}</main>
+      </div>
+    );
   }
 
   return (
@@ -51,7 +60,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           </div>
         </div>
         <p className="text-center text-xs text-slate-500 mt-6">
-          © {new Date().getFullYear()} Astro. All rights reserved. Aghoris on this platform are
+          © {new Date().getFullYear()} Astro. All rights reserved. Oracles on this platform are
           AI personas for entertainment and reflection, not licensed professional advice.
         </p>
       </footer>

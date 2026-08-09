@@ -43,10 +43,10 @@ const CATEGORIES = [
 ];
 
 const WHY_ASTRO = [
-  { title: "AI Aghoris, Always On", desc: "Every Aghori is available 24/7 - no waiting for a human to come online." },
-  { title: "Independent Personas", desc: "Each Aghori has their own personality and memory - conversations never cross over." },
+  { title: "AI Oracles, Always On", desc: "Every Oracle is available 24/7 - no waiting for a human to come online." },
+  { title: "Independent Personas", desc: "Each Oracle has their own personality and memory - conversations never cross over." },
   { title: "Private by Design", desc: "Your consultations are yours alone - no one else can access your conversation history." },
-  { title: "Transparent AI", desc: "Every Aghori is clearly labeled AI - no confusion about who you're talking to." },
+  { title: "Transparent AI", desc: "Every Oracle is clearly labeled AI - no confusion about who you're talking to." },
 ];
 
 const TESTIMONIALS = [
@@ -56,10 +56,10 @@ const TESTIMONIALS = [
 ];
 
 const FAQS = [
-  { q: "Is this a real human Aghori?", a: "No - every Aghori on Astro is an AI persona, clearly labeled \"AI Aghori\". They're designed for entertainment and reflection, not licensed professional advice." },
-  { q: "How does my conversation stay private?", a: "Each consultation is tied to your account and that specific Aghori. No one else can view it, and it never mixes with another Aghori's conversation." },
+  { q: "Is this a real human Oracle?", a: "No - every Oracle on Astro is an AI persona, clearly labeled \"AI Oracle\". They're designed for entertainment and reflection, not licensed professional advice." },
+  { q: "How does my conversation stay private?", a: "Each consultation is tied to your account and that specific Oracle. No one else can view it, and it never mixes with another Oracle's conversation." },
   { q: "Is there a limit to how much I can chat?", a: "Yes - each consultation has a message and time limit, and there's a daily limit across the platform, both configurable by the site admin, to keep things sustainable." },
-  { q: "Can I switch between Aghoris?", a: "Absolutely - browse the marketplace and start a fresh consultation with anyone, any time. Your history with each Aghori is kept separate." },
+  { q: "Can I switch between Oracles?", a: "Absolutely - browse the marketplace and start a fresh consultation with anyone, any time. Your history with each Oracle is kept separate." },
 ];
 
 export default function HomePage() {
@@ -98,7 +98,7 @@ export default function HomePage() {
               "Discover personalized astrology guidance, predictions, palm reading and consultations."}
           </p>
           <div className="flex justify-center gap-4 pt-6 flex-wrap animate-fade-up" style={{ animationDelay: "0.3s" }}>
-            <Link href="/astrologers" className="btn-primary">Chat with an Aghori</Link>
+            <Link href="/astrologers" className="btn-primary">Chat with an Oracle</Link>
             <Link href="/predictions" className="btn-secondary !bg-white/10 !text-gold !border-gold/30 hover:!bg-white/20">Get a Prediction</Link>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function HomePage() {
 
       {allAstrologers.length > 0 && (
         <section className="flex flex-wrap justify-center gap-x-10 gap-y-4 -mt-10">
-          <LiveStat value={allAstrologers.length.toString()} label="Aghoris Online Now" pulse />
+          <LiveStat value={allAstrologers.length.toString()} label="Oracles Online Now" pulse />
           <LiveStat value={totalConsultations.toLocaleString()} label="Consultations So Far" />
           <LiveStat value="24/7" label="Always Available" />
         </section>
@@ -123,9 +123,9 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Featured Aghoris */}
+      {/* Featured Oracles */}
       <section>
-        <SectionHeader title="Featured Aghoris" subtitle="A few of today's top-rated experts" />
+        <SectionHeader title="Featured Oracles" subtitle="A few of today's top-rated experts" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {featured.map((a) => (
             <Link key={a.id} href={`/astrologers/${a.id}`} className="card-royal card-interactive p-5 flex flex-col">
@@ -149,14 +149,14 @@ export default function HomePage() {
         </div>
         <div className="text-center mt-6">
           <Link href="/astrologers" className="text-sm text-brand-dark font-medium hover:underline">
-            View all Aghoris →
+            View all Oracles →
           </Link>
         </div>
       </section>
 
       {/* Popular Categories */}
       <section>
-        <SectionHeader title="Popular Categories" subtitle="Find the right Aghori for what's on your mind" />
+        <SectionHeader title="Popular Categories" subtitle="Find the right Oracle for what's on your mind" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
           {CATEGORIES.map((c) => (
             <Link
@@ -197,16 +197,6 @@ export default function HomePage() {
 
       {/* Reading tools teasers */}
       <section className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
-        <Link href="/kundli" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
-          <h3 className="text-lg font-semibold text-slate-800">Kundli</h3>
-          <p className="text-sm text-slate-500 mt-2">Get your Vedic birth chart reading, or check compatibility with someone through Kundli matching.</p>
-          <span className="inline-block mt-4 text-sm text-brand-dark font-medium">Generate my Kundli →</span>
-        </Link>
-        <Link href="/panchang" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
-          <h3 className="text-lg font-semibold text-slate-800">Panchang & Luck Meter</h3>
-          <p className="text-sm text-slate-500 mt-2">Today&apos;s Vedic almanac plus your own personal luck score for the day.</p>
-          <span className="inline-block mt-4 text-sm text-brand-dark font-medium">Check today →</span>
-        </Link>
         <Link href="/tarot" className="card p-8 hover:shadow-md hover:border-brand/40 transition-all">
           <h3 className="text-lg font-semibold text-slate-800">Tarot Reading</h3>
           <p className="text-sm text-slate-500 mt-2">Draw your cards and get a detailed AI-guided tarot reading for whatever&apos;s on your mind.</p>
@@ -275,8 +265,8 @@ export default function HomePage() {
 function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="text-center">
-      <h2 className="font-display text-2xl md:text-3xl font-bold text-navy">{title}</h2>
-      {subtitle && <p className="text-sm text-slate-500 mt-1">{subtitle}</p>}
+      <h2 className="font-display text-2xl md:text-3xl font-bold text-white">{title}</h2>
+      {subtitle && <p className="text-sm text-ash-light mt-1">{subtitle}</p>}
     </div>
   );
 }
@@ -286,8 +276,8 @@ function LiveStat({ value, label, pulse }: { value: string; label: string; pulse
     <div className="flex items-center gap-2">
       {pulse && <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)] animate-pulse-slow" />}
       <div className="text-left">
-        <p className="font-display text-lg font-bold text-maroon leading-none">{value}</p>
-        <p className="text-[11px] text-slate-500 uppercase tracking-wide mt-0.5">{label}</p>
+        <p className="font-display text-lg font-bold text-ember leading-none">{value}</p>
+        <p className="text-[11px] text-ash-light uppercase tracking-wide mt-0.5">{label}</p>
       </div>
     </div>
   );

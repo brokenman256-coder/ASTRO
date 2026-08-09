@@ -3,7 +3,7 @@ import { generateHeadshotDataUri } from "../lib/imageGen";
 import { pickTraditionalPortrait, pickUniqueTraditionalPortrait } from "../lib/traditionalPortraits";
 
 const SPECIALTIES = [
-  "Aghori Tantra",
+  "Shadow Tantra",
   "Tantra & Protection Rituals",
   "Kundalini Awakening",
   "Shadow Work & Fear Release",
