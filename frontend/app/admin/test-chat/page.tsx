@@ -79,7 +79,7 @@ export default function AdminTestChatPage() {
 
       <div className="grid md:grid-cols-[260px_1fr] gap-6">
         <div>
-          <label className="text-xs text-slate-500 block mb-1">Astrologer</label>
+          <label className="text-xs text-slate-500 block mb-1">Aghori</label>
           <select className="input mb-4" value={astrologerId} onChange={(e) => switchAstrologer(e.target.value)}>
             {astrologers.length === 0 && <option value="">No astrologers</option>}
             {astrologers.map((a) => (

@@ -76,15 +76,22 @@ model Astrologer {
   createdAt       DateTime         @default(now())
   retiredAt       DateTime?
 
+  // Groups the roster into fixed-size cohorts (see astrologers.routes.ts
+  // admin batch endpoints) an admin can bring fully online or offline at
+  // once, e.g. keeping one 200-strong batch active while a second sits in
+  // reserve - independent of the existing per-row `active` flag, which a
+  // batch toggle simply sets in bulk for every row sharing this number.
+  batch Int @default(0)
+
   // AI persona - each astrologer is an independent AI character. See
   // backend/src/services/astrologerPersona.service.ts for how these are
   // turned into an isolated system prompt per conversation.
-  personality          String   @default("Warm, thoughtful, and attentive.")
-  tone                 String   @default("Conversational and reassuring")
+  personality          String   @default("Fearless, blunt, and unshaken by taboo.")
+  tone                 String   @default("Direct, intense, unsentimental")
   languages            String[] @default(["English"])
-  greeting             String   @default("Namaste. Tell me what has been on your mind lately.")
-  astrologyStyle       String   @default("Vedic Astrology")
-  systemInstructions   String   @default("Give confident, specific astrology-oriented guidance. Ask relevant follow-up questions and engage naturally with whatever the user brings up.")
+  greeting             String   @default("Namaste. Speak plainly - I don't flinch from what troubles you.")
+  astrologyStyle       String   @default("Aghori Tantra")
+  systemInstructions   String   @default("Give fearless, unflinching guidance rooted in Aghori philosophy. Ask relevant follow-up questions and engage naturally with whatever the user brings up.")
   priceRupeesPerMinute Int      @default(15)
   consultationCount    Int      @default(0)
 

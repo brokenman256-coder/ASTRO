@@ -204,7 +204,11 @@ export async function sendMessage(conversationId: string, userId: string, conten
     }));
   turns.push({ role: "user", content });
 
-  const system = buildAstrologerSystemPrompt(conversation.astrologer);
+  const seeker = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, dob: true, zodiacSign: true },
+  });
+  const system = buildAstrologerSystemPrompt(conversation.astrologer, seeker ?? undefined);
   const { text, tokensUsed, configured } = await generateAIResponse({ system, messages: turns });
 
   // Only charge for the extra minute(s) once the astrologer actually

@@ -132,7 +132,7 @@ export default function AdminAstrologersPage() {
   async function runBulkSeed() {
     const count = parseInt(bulkCount, 10) || 0;
     if (count < 1) return;
-    if (!confirm(`Create ${count} astrologer profiles now? This uses placeholder avatars (no AI image cost) and can't be undone in bulk - you'd have to retire them one by one.`)) {
+    if (!confirm(`Create ${count} Aghori profiles now? This uses placeholder avatars (no AI image cost) and can't be undone in bulk - you'd have to retire them one by one.`)) {
       return;
     }
     setBusy(true);
@@ -214,15 +214,15 @@ function toPayload(f: PersonaFormState) {
   return (
     <AdminGuard>
       <AdminNav />
-      <h1 className="text-2xl font-semibold mb-2">Astrologer roster</h1>
+      <h1 className="text-2xl font-semibold mb-2">Aghori roster</h1>
       <p className="text-slate-500 text-sm mb-6">
-        Use the bot to automatically add fresh astrologer profiles or retire stale/low-rated ones -
-        just like a live astrology marketplace rotates its roster.
+        Use the bot to automatically add fresh Aghori profiles or retire stale/low-rated ones -
+        just like a live consultation marketplace rotates its roster.
       </p>
 
       <div className="flex gap-3 mb-6">
         <button className="btn-primary" onClick={runBotAdd} disabled={busy}>
-          🤖 Bot: Add new astrologer
+          🤖 Bot: Add new Aghori
         </button>
         <button className="btn-secondary" onClick={runBotPrune} disabled={busy}>
           🤖 Bot: Retire lowest-rated
@@ -231,7 +231,7 @@ function toPayload(f: PersonaFormState) {
       {message && <p className="text-sm text-brand mb-6">{message}</p>}
 
       <div className="card p-6 mb-8 space-y-3">
-        <h2 className="font-medium">Bulk-generate astrologers</h2>
+        <h2 className="font-medium">Bulk-generate Aghoris</h2>
         <p className="text-xs text-slate-500">
           One-time bulk creation, not the live per-interval bot - uses placeholder avatars (no AI
           image cost) so you can build a large, varied pool cheaply. Combine with the "Featured
@@ -258,7 +258,7 @@ function toPayload(f: PersonaFormState) {
             <div>
               <h2 className="font-medium">Auto-bot (runs on a schedule)</h2>
               <p className="text-xs text-slate-500 mt-1">
-                When on, the bot adds a new astrologer every {scheduler.intervalMinutes} minute
+                When on, the bot adds a new Aghori every {scheduler.intervalMinutes} minute
                 {scheduler.intervalMinutes === 1 ? "" : "s"} on its own, generating an AI headshot
                 if <code className="text-slate-500">OPENAI_API_KEY</code> is configured. It retires
                 the weakest profile first if the roster is at its cap, so the list stays bounded.
@@ -327,7 +327,7 @@ function toPayload(f: PersonaFormState) {
               <h2 className="font-medium">Info-refresh bot</h2>
               <p className="text-xs text-slate-500 mt-1">
                 Every {scheduler.refreshIntervalMinutes} minutes, randomizes name/specialty/experience/rating/bio/photo
-                for {scheduler.refreshBatchSize} random bot-generated astrologers (never the hand-curated named
+                for {scheduler.refreshBatchSize} random bot-generated Aghoris (never the hand-curated named
                 personas, and never anyone with a consultation in progress).
               </p>
             </div>
@@ -353,7 +353,7 @@ function toPayload(f: PersonaFormState) {
               />
             </div>
             <div>
-              <label className="text-xs text-slate-500 block mb-1">Astrologers refreshed per run</label>
+              <label className="text-xs text-slate-500 block mb-1">Aghoris refreshed per run</label>
               <input
                 className="input"
                 type="number"
@@ -372,13 +372,13 @@ function toPayload(f: PersonaFormState) {
       )}
 
       <form onSubmit={handleManualAdd} className="card p-6 space-y-3 mb-8">
-        <h2 className="font-medium">Add a new AI astrologer</h2>
+        <h2 className="font-medium">Add a new AI Aghori</h2>
         <p className="text-xs text-slate-500">
           Create a fully independent AI persona - no code changes needed. The system instructions
-          define how this astrologer talks and what it focuses on.
+          define how this Aghori talks and what it focuses on.
         </p>
         <PersonaFields value={form} onChange={setForm} />
-        <button className="btn-primary" disabled={busy}>Create astrologer</button>
+        <button className="btn-primary" disabled={busy}>Create Aghori</button>
       </form>
 
       <div className="flex items-center justify-between mb-3">
@@ -478,7 +478,7 @@ function PersonaFields({
       <textarea className="input" placeholder="Opening greeting shown when a chat starts" rows={2} value={value.greeting} onChange={(e) => onChange({ ...value, greeting: e.target.value })} />
       <textarea
         className="input"
-        placeholder="AI system instructions - how this astrologer should talk and what to focus on"
+        placeholder="AI system instructions - how this Aghori should talk and what to focus on"
         rows={4}
         value={value.systemInstructions}
         onChange={(e) => onChange({ ...value, systemInstructions: e.target.value })}

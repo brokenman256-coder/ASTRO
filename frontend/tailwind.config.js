@@ -17,6 +17,18 @@ module.exports = {
           DEFAULT: "#7A1230",
           dark: "#4A0A1C",
         },
+        ash: {
+          DEFAULT: "#8A8680",
+          light: "#B8B4AC",
+        },
+        charcoal: {
+          DEFAULT: "#0D0B0A",
+          light: "#1A1614",
+        },
+        ember: {
+          DEFAULT: "#FF4F1A",
+          dark: "#B8300C",
+        },
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],

@@ -83,7 +83,7 @@ function AstrologersContent() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-3xl font-bold text-navy">Our Astrologers</h1>
+        <h1 className="font-display text-3xl font-bold text-navy">Our Aghoris</h1>
         <p className="text-slate-500 mt-1">Today's featured experts - a fresh selection every day.</p>
       </div>
 
@@ -119,7 +119,7 @@ function AstrologersContent() {
 
       {loading && <p className="text-slate-400">Loading...</p>}
       {!loading && filtered.length === 0 && (
-        <p className="text-slate-400">No astrologers match those filters - try widening them.</p>
+        <p className="text-slate-400">No Aghoris match those filters - try widening them.</p>
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

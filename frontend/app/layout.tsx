@@ -11,8 +11,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Astro - AI Astrology, Palm Reading & Expert Astrologers",
-  description: "Astro brings you AI-guided astrology, palm reading, and expert astrologers in one place.",
+  title: "Astro - Connect with AI Aghoris, Astrology & Palm Reading",
+  description: "Astro brings you AI-guided Aghori consultations, astrology, and palm reading in one place.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

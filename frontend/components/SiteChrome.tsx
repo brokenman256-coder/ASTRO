@@ -7,7 +7,7 @@ import BottomNav from "@/components/BottomNav";
 import PromoBanner from "@/components/PromoBanner";
 
 const FOOTER_LINKS = [
-  { href: "/astrologers", label: "Astrologers" },
+  { href: "/astrologers", label: "Aghoris" },
   { href: "/predictions", label: "Predictions" },
   { href: "/palm-reading", label: "Palm Reading" },
   { href: "/remedies", label: "Remedies" },
@@ -51,7 +51,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
           </div>
         </div>
         <p className="text-center text-xs text-slate-500 mt-6">
-          © {new Date().getFullYear()} Astro. All rights reserved. Astrologers on this platform are
+          © {new Date().getFullYear()} Astro. All rights reserved. Aghoris on this platform are
           AI personas for entertainment and reflection, not licensed professional advice.
         </p>
       </footer>

@@ -29,7 +29,7 @@ export default function AdminOverviewPage() {
       {data && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <Stat label="Users" value={data.userCount} />
-          <Stat label="Active astrologers" value={data.activeAstrologers} />
+          <Stat label="Active Aghoris" value={data.activeAstrologers} />
           <Stat label="Pending wallet requests" value={data.pendingTx} highlight={data.pendingTx > 0} />
           <Stat label="Predictions served" value={data.predictionCount} />
           <Stat label="Palm readings served" value={data.palmReadingCount} />

@@ -64,7 +64,7 @@ export default function AstrologerProfilePage() {
   }
 
   if (loading) return <p className="text-slate-400">Loading...</p>;
-  if (!astrologer) return <p className="text-slate-400">Astrologer not found.</p>;
+  if (!astrologer) return <p className="text-slate-400">Aghori not found.</p>;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">

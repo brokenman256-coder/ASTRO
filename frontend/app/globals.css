@@ -2,12 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Wild/Aghori theme: a moodier, ash-toned backdrop (evoking cremation-
+   ground ash) with stronger ember/maroon glows, replacing the earlier
+   bright orange-cream base - kept light enough that the existing
+   slate-700/800 body text (used throughout, not just inside cards) still
+   has safe contrast. The navbar/footer/hero carry the bulk of the fully
+   dark "wild" visual weight. */
 body {
   @apply text-slate-800 min-h-screen;
-  background-color: #faf5ea;
-  background-image: radial-gradient(circle at 12% 8%, rgba(122, 18, 48, 0.09), transparent 42%),
-    radial-gradient(circle at 88% 4%, rgba(245, 185, 66, 0.16), transparent 38%),
-    radial-gradient(circle at 50% 100%, rgba(30, 35, 64, 0.05), transparent 55%);
+  background-color: #ede7df;
+  background-image: radial-gradient(circle at 12% 8%, rgba(255, 79, 26, 0.13), transparent 42%),
+    radial-gradient(circle at 88% 4%, rgba(122, 18, 48, 0.16), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgba(13, 11, 10, 0.06), transparent 60%);
   background-attachment: fixed;
 }
 
@@ -30,7 +36,7 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background-image: linear-gradient(90deg, #7a1230, #f5b942 50%, #7a1230);
+  background-image: linear-gradient(90deg, #7a1230, #ff4f1a 50%, #7a1230);
 }
 
 /* Gold-foil text treatment for premium labels/prices */
@@ -49,12 +55,12 @@ a.card:hover,
 
 .btn-primary {
   @apply text-white font-semibold rounded-full px-5 py-2.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0;
-  background-image: linear-gradient(135deg, #9a1c40, #7a1230 55%, #4a0a1c);
-  box-shadow: 0 8px 24px -8px rgba(74, 10, 28, 0.6), inset 0 1px 0 rgba(245, 214, 122, 0.25);
+  background-image: linear-gradient(135deg, #ff4f1a, #b8300c 55%, #4a0a1c);
+  box-shadow: 0 8px 24px -8px rgba(184, 48, 12, 0.65), inset 0 1px 0 rgba(255, 200, 150, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
-  box-shadow: 0 10px 30px -6px rgba(74, 10, 28, 0.7), inset 0 1px 0 rgba(245, 214, 122, 0.35);
+  box-shadow: 0 10px 30px -6px rgba(184, 48, 12, 0.75), inset 0 1px 0 rgba(255, 200, 150, 0.35);
   transform: translateY(-1px);
 }
 
@@ -101,13 +107,13 @@ a.card:hover,
 /* Subtle scattered "stars" texture for hero/dark sections - pure CSS, no
    images, so it stays cheap and crisp at any size. */
 .star-field {
-  background-image: radial-gradient(1.5px 1.5px at 20% 30%, rgba(232, 89, 12, 0.35), transparent),
-    radial-gradient(1px 1px at 70% 15%, rgba(245, 185, 66, 0.45), transparent),
-    radial-gradient(1.5px 1.5px at 85% 55%, rgba(232, 89, 12, 0.3), transparent),
-    radial-gradient(1px 1px at 40% 70%, rgba(245, 185, 66, 0.4), transparent),
-    radial-gradient(1.5px 1.5px at 10% 85%, rgba(232, 89, 12, 0.3), transparent),
-    radial-gradient(1px 1px at 60% 40%, rgba(245, 185, 66, 0.35), transparent),
-    radial-gradient(1.5px 1.5px at 95% 80%, rgba(232, 89, 12, 0.3), transparent);
+  background-image: radial-gradient(1.5px 1.5px at 20% 30%, rgba(255, 79, 26, 0.4), transparent),
+    radial-gradient(1px 1px at 70% 15%, rgba(184, 134, 11, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 85% 55%, rgba(255, 79, 26, 0.35), transparent),
+    radial-gradient(1px 1px at 40% 70%, rgba(138, 134, 128, 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 10% 85%, rgba(255, 79, 26, 0.35), transparent),
+    radial-gradient(1px 1px at 60% 40%, rgba(138, 134, 128, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 95% 80%, rgba(255, 79, 26, 0.35), transparent);
   background-repeat: repeat;
   background-size: 220px 220px;
 }

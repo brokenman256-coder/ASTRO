@@ -1,14 +1,17 @@
 import { prisma } from "../lib/prisma";
 import { generateHeadshotDataUri } from "../lib/imageGen";
-import { pickTraditionalPortrait } from "../lib/traditionalPortraits";
+import { pickTraditionalPortrait, pickUniqueTraditionalPortrait } from "../lib/traditionalPortraits";
 
 const SPECIALTIES = [
+  "Aghori Tantra",
+  "Tantra & Protection Rituals",
+  "Kundalini Awakening",
+  "Shadow Work & Fear Release",
   "Vedic Astrology",
   "Tarot Reading",
   "Numerology",
   "Palmistry",
   "Vastu Shastra",
-  "KP Astrology",
   "Western Astrology",
   "Face Reading",
   "Marriage & Relationships",
@@ -16,7 +19,6 @@ const SPECIALTIES = [
   "Nadi Astrology",
   "Lal Kitab",
   "Gemstone Therapy",
-  "Horary Astrology",
 ];
 
 const FIRST_NAMES: { name: string; gender: "man" | "woman" }[] = [
@@ -82,19 +84,19 @@ const LAST_NAMES = [
 ];
 
 const BIO_TEMPLATES = [
-  "brings {years} years of experience in {specialty}, known for precise, compassionate readings.",
-  "has guided thousands of clients through {specialty}, blending traditional wisdom with modern insight.",
-  "specializes in {specialty} with a calm, practical approach that clients trust for life's big decisions.",
+  "has walked the path of {specialty} for {years} years, unflinching and direct in every reading.",
+  "has guided thousands through {specialty}, seeing past illusion to what's real.",
+  "practices {specialty} with a fearless, unsentimental approach - no comforting lies, only clarity.",
 ];
 
 // Every astrologer opens a fresh consultation with a warm "Namaste" - the
 // traditional greeting fits the platform's astrology context and gives the
 // chat a consistent, welcoming first moment across the whole roster.
 const GREETING_TEMPLATES = [
-  "Namaste. I'm {name} - tell me what's been on your mind lately.",
-  "Namaste, and welcome. I'm {name}. What would you like to explore today?",
-  "Namaste! I'm {name}, here to help you find some clarity. Where shall we begin?",
-  "Namaste. I'm {name} - share what's troubling you, and let's look at it together.",
+  "Namaste. I am {name}. Speak plainly - I don't flinch from what troubles you.",
+  "Namaste. I'm {name}. Truth first, comfort later, if at all. What's really going on?",
+  "Namaste. {name}, here. Fear nothing, hide nothing - tell me what's on your mind.",
+  "Namaste. I am {name}. Say what you came to say - I've heard worse, and I don't judge.",
 ];
 
 function pick<T>(arr: T[]): T {
@@ -103,6 +105,7 @@ function pick<T>(arr: T[]): T {
 
 const WOMEN = FIRST_NAMES.filter((f) => f.gender === "woman");
 const MEN = FIRST_NAMES.filter((f) => f.gender === "man");
+const WOMEN_NAMES = new Set(WOMEN.map((f) => f.name));
 
 // Roster skews female and young (20s) by design request - most profiles
 // are women in their early-to-late 20s, with a smaller mix of other ages
@@ -111,7 +114,15 @@ function pickFirstName(): { name: string; gender: "man" | "woman" } {
   return Math.random() < 0.7 ? pick(WOMEN) : pick(MEN);
 }
 
-export function generateAstrologerProfile() {
+// Astrologer rows don't persist a gender field (it's only used transiently
+// during generation), so anything that needs to infer it later - e.g.
+// reassigning a duplicate photo - looks it up from the first name instead.
+export function inferGenderFromName(fullName: string): "man" | "woman" {
+  const first = fullName.split(" ")[0];
+  return WOMEN_NAMES.has(first) ? "woman" : "man";
+}
+
+export function generateAstrologerProfile(usedPhotoUrls?: Set<string>) {
   const first = pickFirstName();
   const last = pick(LAST_NAMES);
   const specialty = pick(SPECIALTIES);
@@ -140,7 +151,9 @@ export function generateAstrologerProfile() {
     // Pexels and hotlinked directly, no ongoing API key needed. Used
     // whenever OPENAI_API_KEY isn't set, or for bulk seeding where
     // per-image AI cost isn't worth it.
-    fallbackPhotoUrl: pickTraditionalPortrait(first.gender),
+    fallbackPhotoUrl: usedPhotoUrls
+      ? pickUniqueTraditionalPortrait(first.gender, usedPhotoUrls)
+      : pickTraditionalPortrait(first.gender),
   };
 }
 
@@ -160,8 +173,14 @@ function buildHeadshotPrompt(gender: "man" | "woman", age: number, specialty: st
  * with a real AI-generated photorealistic headshot when OPENAI_API_KEY is
  * configured (falls back to a placeholder avatar otherwise).
  */
+async function getUsedPhotoUrls(): Promise<Set<string>> {
+  const rows = await prisma.astrologer.findMany({ where: { active: true }, select: { photoUrl: true } });
+  return new Set(rows.map((r) => r.photoUrl));
+}
+
 export async function botAddAstrologer() {
-  const { fallbackPhotoUrl, gender, age, ...profile } = generateAstrologerProfile();
+  const usedPhotoUrls = await getUsedPhotoUrls();
+  const { fallbackPhotoUrl, gender, age, ...profile } = generateAstrologerProfile(usedPhotoUrls);
 
   let photoUrl = fallbackPhotoUrl;
   try {
@@ -273,11 +292,13 @@ export async function botRefreshAstrologerInfo(batchSize: number) {
   const shuffled = [...eligible].sort(() => Math.random() - 0.5);
   const targets = shuffled.slice(0, Math.min(batchSize, shuffled.length));
 
+  const usedPhotoUrls = await getUsedPhotoUrls();
   const updated = [];
   for (const { id } of targets) {
-    const { fallbackPhotoUrl, gender, age, ...profile } = generateAstrologerProfile();
+    const { fallbackPhotoUrl, gender, age, ...profile } = generateAstrologerProfile(usedPhotoUrls);
     void gender;
     void age;
+    usedPhotoUrls.add(fallbackPhotoUrl);
     const astrologer = await prisma.astrologer.update({
       where: { id },
       data: { ...profile, photoUrl: fallbackPhotoUrl },

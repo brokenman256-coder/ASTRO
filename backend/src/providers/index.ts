@@ -64,7 +64,7 @@ export async function resolveAISettings(): Promise<ResolvedAISettings> {
 }
 
 export const AI_NOT_CONFIGURED_MESSAGE =
-  "The astrologer is temporarily unavailable. Please try again later.";
+  "This Aghori is temporarily unavailable. Please try again later.";
 
 /** The single entry point the rest of the backend should call - never
  * import a specific provider module directly outside this file. */

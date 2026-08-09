@@ -8,7 +8,8 @@ import { clearAdminToken } from "@/lib/session";
 const LINKS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/users", label: "Users" },
-  { href: "/admin/astrologers", label: "Astrologers" },
+  { href: "/admin/astrologers", label: "Aghoris" },
+  { href: "/admin/batches", label: "Batches" },
   { href: "/admin/guided-predictions", label: "Guided Predictions" },
   { href: "/admin/live-chats", label: "Live Chats" },
   { href: "/admin/test-chat", label: "Test Chat" },

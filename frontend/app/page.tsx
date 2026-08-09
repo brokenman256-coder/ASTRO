@@ -43,10 +43,10 @@ const CATEGORIES = [
 ];
 
 const WHY_ASTRO = [
-  { title: "AI Astrologers, Always On", desc: "Every astrologer is available 24/7 - no waiting for a human to come online." },
-  { title: "Independent Personas", desc: "Each astrologer has their own personality and memory - conversations never cross over." },
+  { title: "AI Aghoris, Always On", desc: "Every Aghori is available 24/7 - no waiting for a human to come online." },
+  { title: "Independent Personas", desc: "Each Aghori has their own personality and memory - conversations never cross over." },
   { title: "Private by Design", desc: "Your consultations are yours alone - no one else can access your conversation history." },
-  { title: "Transparent AI", desc: "Every astrologer is clearly labeled AI - no confusion about who you're talking to." },
+  { title: "Transparent AI", desc: "Every Aghori is clearly labeled AI - no confusion about who you're talking to." },
 ];
 
 const TESTIMONIALS = [
@@ -56,10 +56,10 @@ const TESTIMONIALS = [
 ];
 
 const FAQS = [
-  { q: "Is this a real human astrologer?", a: "No - every astrologer on Astro is an AI persona, clearly labeled \"AI Astrologer\". They're designed for entertainment and reflection, not licensed professional advice." },
-  { q: "How does my conversation stay private?", a: "Each consultation is tied to your account and that specific astrologer. No one else can view it, and it never mixes with another astrologer's conversation." },
+  { q: "Is this a real human Aghori?", a: "No - every Aghori on Astro is an AI persona, clearly labeled \"AI Aghori\". They're designed for entertainment and reflection, not licensed professional advice." },
+  { q: "How does my conversation stay private?", a: "Each consultation is tied to your account and that specific Aghori. No one else can view it, and it never mixes with another Aghori's conversation." },
   { q: "Is there a limit to how much I can chat?", a: "Yes - each consultation has a message and time limit, and there's a daily limit across the platform, both configurable by the site admin, to keep things sustainable." },
-  { q: "Can I switch between astrologers?", a: "Absolutely - browse the marketplace and start a fresh consultation with anyone, any time. Your history with each astrologer is kept separate." },
+  { q: "Can I switch between Aghoris?", a: "Absolutely - browse the marketplace and start a fresh consultation with anyone, any time. Your history with each Aghori is kept separate." },
 ];
 
 export default function HomePage() {
@@ -98,7 +98,7 @@ export default function HomePage() {
               "Discover personalized astrology guidance, predictions, palm reading and consultations."}
           </p>
           <div className="flex justify-center gap-4 pt-6 flex-wrap animate-fade-up" style={{ animationDelay: "0.3s" }}>
-            <Link href="/astrologers" className="btn-primary">Chat with an Astrologer</Link>
+            <Link href="/astrologers" className="btn-primary">Chat with an Aghori</Link>
             <Link href="/predictions" className="btn-secondary !bg-white/10 !text-gold !border-gold/30 hover:!bg-white/20">Get a Prediction</Link>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function HomePage() {
 
       {allAstrologers.length > 0 && (
         <section className="flex flex-wrap justify-center gap-x-10 gap-y-4 -mt-10">
-          <LiveStat value={allAstrologers.length.toString()} label="Astrologers Online Now" pulse />
+          <LiveStat value={allAstrologers.length.toString()} label="Aghoris Online Now" pulse />
           <LiveStat value={totalConsultations.toLocaleString()} label="Consultations So Far" />
           <LiveStat value="24/7" label="Always Available" />
         </section>
@@ -123,9 +123,9 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Featured Astrologers */}
+      {/* Featured Aghoris */}
       <section>
-        <SectionHeader title="Featured Astrologers" subtitle="A few of today's top-rated experts" />
+        <SectionHeader title="Featured Aghoris" subtitle="A few of today's top-rated experts" />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {featured.map((a) => (
             <Link key={a.id} href={`/astrologers/${a.id}`} className="card-royal card-interactive p-5 flex flex-col">
@@ -149,14 +149,14 @@ export default function HomePage() {
         </div>
         <div className="text-center mt-6">
           <Link href="/astrologers" className="text-sm text-brand-dark font-medium hover:underline">
-            View all astrologers →
+            View all Aghoris →
           </Link>
         </div>
       </section>
 
       {/* Popular Categories */}
       <section>
-        <SectionHeader title="Popular Categories" subtitle="Find the right astrologer for what's on your mind" />
+        <SectionHeader title="Popular Categories" subtitle="Find the right Aghori for what's on your mind" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
           {CATEGORIES.map((c) => (
             <Link

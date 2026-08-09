@@ -12,9 +12,9 @@ const PROMO_TYPES = [
     prompt: "Write a short, exciting one-line banner encouraging users to recharge their wallet - mention that first-time users get a special bonus.",
   },
   {
-    ctaLabel: "Meet the astrologers",
+    ctaLabel: "Meet the Aghoris",
     ctaHref: "/astrologers",
-    prompt: "Write a short, exciting one-line banner inviting users to browse the astrologer marketplace and start a consultation.",
+    prompt: "Write a short, exciting one-line banner inviting users to browse the Aghori marketplace and start a fearless consultation.",
   },
   {
     ctaLabel: "Draw your cards",

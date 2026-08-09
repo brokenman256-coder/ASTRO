@@ -7,7 +7,7 @@ import { getUserInfo } from "@/lib/session";
 
 const ITEMS = [
   { href: "/", label: "Home", icon: "⌂" },
-  { href: "/astrologers", label: "Astrologers", icon: "☾" },
+  { href: "/astrologers", label: "Aghoris", icon: "☾" },
   { href: "/chat", label: "Chat", icon: "✉" },
   { href: "/predictions", label: "Predictions", icon: "✦" },
 ];
