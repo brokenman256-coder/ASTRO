@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma";
 import { generateHeadshotDataUri } from "../lib/imageGen";
+import { pickTraditionalPortrait } from "../lib/traditionalPortraits";
 
 const SPECIALTIES = [
   "Vedic Astrology",
@@ -134,16 +135,22 @@ export function generateAstrologerProfile() {
     languages: pickLanguages(),
     greeting,
     bio: `${name} ${bioTemplate}`,
-    // Real (licensed-for-any-use) human portrait photos, not a cartoon
-    // avatar - free, instant, no API key. Used whenever OPENAI_API_KEY
-    // isn't set, or for bulk seeding where per-image AI cost isn't worth it.
-    fallbackPhotoUrl: `https://randomuser.me/api/portraits/${first.gender === "man" ? "men" : "women"}/${Math.floor(Math.random() * 100)}.jpg`,
+    // Real stock portraits of Indian people in traditional attire (saffron-
+    // robed priests/sadhus for men, sarees for women) - curated once from
+    // Pexels and hotlinked directly, no ongoing API key needed. Used
+    // whenever OPENAI_API_KEY isn't set, or for bulk seeding where
+    // per-image AI cost isn't worth it.
+    fallbackPhotoUrl: pickTraditionalPortrait(first.gender),
   };
 }
 
 function buildHeadshotPrompt(gender: "man" | "woman", age: number, specialty: string): string {
+  const attire =
+    gender === "man"
+      ? "wearing traditional saffron-colored robes befitting a Hindu pandit/priest, with a religious tilaka mark on the forehead"
+      : "wearing a traditional saree with traditional jewelry, with a bindi/tilaka mark on the forehead";
   return `Professional photorealistic headshot portrait of a South Asian ${gender} astrologer, ` +
-    `around ${age} years old, warm and confident expression, wearing smart business-casual attire, ` +
+    `around ${age} years old, warm and confident expression, ${attire}, ` +
     `soft studio lighting, neutral gray background, high quality DSLR photo, looking directly at ` +
     `the camera, shot in the style of a professional consultant's profile photo. No text, no logos.`;
 }
