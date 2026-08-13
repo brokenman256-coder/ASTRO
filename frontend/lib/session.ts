@@ -19,6 +19,9 @@ export interface UserInfo {
   email: string;
   phone?: string | null;
   dob?: string | null;
+  instagramConnected?: boolean;
+  instagramUsername?: string | null;
+  trainingConsent?: boolean;
 }
 
 export interface AdminInfo {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/lib/api";
 import { setUserSession } from "@/lib/session";
+import InstagramLoginButton from "@/components/InstagramLoginButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,6 +39,11 @@ export default function LoginPage() {
         <button className="btn-primary w-full" disabled={loading}>
           {loading ? "Logging in..." : "Log in"}
         </button>
+        <div className="relative py-2">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-orange-100" /></div>
+          <div className="relative flex justify-center"><span className="bg-[#f2ede4] px-3 text-xs text-slate-400">or</span></div>
+        </div>
+        <InstagramLoginButton />
         <p className="text-center text-sm">
           <Link href="/forgot-password" className="text-brand-dark hover:underline">
             Forgot password?
