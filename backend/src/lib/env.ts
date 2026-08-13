@@ -20,6 +20,10 @@ export const env = {
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD ?? "",
   schedulerSecret: process.env.SCHEDULER_SECRET ?? "",
   encryptionKey: process.env.ENCRYPTION_KEY ?? "",
+  instagramAppId: process.env.INSTAGRAM_APP_ID ?? "",
+  instagramAppSecret: process.env.INSTAGRAM_APP_SECRET ?? "",
+  instagramRedirectUri: process.env.INSTAGRAM_REDIRECT_URI ?? "",
+  frontendOrigin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
 };
 
 export { required };

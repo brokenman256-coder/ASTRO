@@ -25,6 +25,7 @@ import { adminAIRouter } from "./routes/adminAI.routes";
 import { tarotRouter } from "./routes/tarot.routes";
 import { promoRouter } from "./routes/promo.routes";
 import { mediaRouter } from "./routes/media.routes";
+import { instagramRouter } from "./routes/instagram.routes";
 
 // Route mounts intentionally have no "/api" prefix here - both entry points
 // (index.ts for a persistent server, netlify/functions/api.ts for
@@ -42,6 +43,7 @@ export function createApp() {
   app.get("/health", (_req, res) => res.json({ ok: true }));
 
   app.use("/auth", authRouter);
+  app.use("/auth/instagram", instagramRouter);
   app.use("/astrologers", astrologersRouter);
   app.use("/predictions", predictionsRouter);
   app.use("/palm-reading", palmReadingRouter);
